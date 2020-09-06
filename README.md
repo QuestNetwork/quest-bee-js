@@ -22,7 +22,7 @@ It stores and synchronizes configuration data, discovers relevant dolphin peers,
 
 ## Roadmap
 
-**0.3.1**
+**0.5.1**
  - Uses [go-ipfs](https://github.com/ipfs/go-ipfs) from NodeJS and [js-ipfs](https://github.com/ipfs/js-ipfs) from Electron/Web
 
 ## Installation & Usage
