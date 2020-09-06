@@ -24,7 +24,7 @@ It stores and synchronizes configuration data, discovers relevant dolphin peers,
 
 **0.5.1**
  - Uses [go-ipfs](https://github.com/ipfs/go-ipfs) from NodeJS and [js-ipfs](https://github.com/ipfs/js-ipfs) from Electron/Web
- - Uses [quest-star-go](https://github.com/QuestNetwork/quest-star-go) from NodeJS and Electron
+ - Uses [quest-star-rust](https://github.com/QuestNetwork/quest-star-go) from NodeJS and Electron
 
 ## Installation & Usage
 ```npm install @questnetwork/quest-bee-js```
