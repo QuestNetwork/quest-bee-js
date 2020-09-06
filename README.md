@@ -17,7 +17,7 @@ Ethereum:
 
 ## Description
 
-The Bee Service interacts with the optional user facing technology and [Quest Dolphin JS](https://github.com/QuestNetwork/quest-dolphin-js).
+The Bee Service interacts with optional user facing technology and [Quest Dolphin JS](https://github.com/QuestNetwork/quest-dolphin-js).
 It stores and synchronizes configuration data, discovers relevant dolphin peers, spawns, protects and repairs multiple pods of dolphin instances.
 
 ## Roadmap
