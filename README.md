@@ -26,8 +26,8 @@ It stores and synchronizes configuration data, discovers relevant dolphin peers,
  - Uses [go-ipfs](https://github.com/ipfs/go-ipfs) from NodeJS and [js-ipfs](https://github.com/ipfs/js-ipfs) from Electron/Web
 
 ## Installation & Usage
-```npm install @questnetwork/quest-dolphin-js```
-es
+```npm install @questnetwork/quest-bee-js```
+
 ## License
 
 GNU GPLv3
