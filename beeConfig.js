@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { v4 as uuidv4 } from 'uuid';
 import { Subject } from 'rxjs';
 
-import { saveAs } from 'file-saver';
+// import { saveAs } from 'file-saver';
 
 interface TreeNode<T> {
   data: T;
@@ -47,6 +47,7 @@ export class BeeConfig {
     this.autoSaveInterval = uVar;
     this.fs = uVar;
     this.electron = uVar;
+    this.dolphin = uVar;
     this.commitChanges = false;
     this.channelFolderListSub = new Subject();
     this.pFICache = uVar;
@@ -57,6 +58,9 @@ export class BeeConfig {
     this.version = config['version'];
 
     this.electron = config['dependencies']['electronService'];
+    this.saveAs = config['dependencies']['saveAs'];
+
+    this.dolphin = config['dependencies']['dolphin'];
 
     var userAgent = navigator.userAgent.toLowerCase();
     if (userAgent.indexOf(' electron/') > -1) {
@@ -116,14 +120,14 @@ export class BeeConfig {
       this.config = {
         version: this.version,
         appId: 'quest-messenger-js',
-        channelKeyChain:   this.q.os.ocean.dolphin.getChannelKeyChain(),
-        channelParticipantList: this.q.os.ocean.dolphin.getChannelParticipantList(),
-        channelNameList: this.q.os.ocean.dolphin.getChannelNameList(),
+        channelKeyChain:   this.dolphin.getChannelKeyChain(),
+        channelParticipantList: this.dolphin.getChannelParticipantList(),
+        channelNameList: this.dolphin.getChannelNameList(),
         channelFolderList: this.config.channelFolderList,
-        selectedChannel: this.q.os.ocean.dolphin.getSelectedChannel(),
+        selectedChannel: this.dolphin.getSelectedChannel(),
         sideBarFixed: this.getSideBarFixed(),
         sideBarVisible: this.getSideBarVisible(),
-        inviteCodes: this.q.os.ocean.dolphin.getInviteCodes()
+        inviteCodes: this.dolphin.getInviteCodes()
       };
 
       if(this.isElectron){
@@ -131,7 +135,7 @@ export class BeeConfig {
       }
       else{
         let userProfileBlob = new Blob([ JSON.stringify(this.config)], { type: 'text/plain;charset=utf-8' });
-        saveAs(userProfileBlob, "profile.qcprofile");
+        this.saveAs(userProfileBlob, "profile.qcprofile");
       }
 
   }
@@ -159,21 +163,21 @@ export class BeeConfig {
     }catch(error){console.log(error);}
     //put config into pubsub
     if(typeof(config['channelKeyChain']) != 'undefined'){
-      this.q.os.ocean.dolphin.setChannelKeyChain(config['channelKeyChain']);
+      this.dolphin.setChannelKeyChain(config['channelKeyChain']);
     }
     if(typeof(config['channelParticipantList']) != 'undefined'){
       console.log('Config: Importing ParticipantList ...',config['channelParticipantList']);
-      this.q.os.ocean.dolphin.setChannelParticipantList(config['channelParticipantList']);
+      this.dolphin.setChannelParticipantList(config['channelParticipantList']);
     }
     else{
-        this.q.os.ocean.dolphin.setChannelParticipantList(this.config['channelParticipantList']);
+        this.dolphin.setChannelParticipantList(this.config['channelParticipantList']);
     }
     if(typeof(config['channelNameList']) != 'undefined'){
       console.log('Config: Importing channelNameList ...',config['channelNameList']);
-      this.q.os.ocean.dolphin.setChannelNameList(config['channelNameList']);
+      this.dolphin.setChannelNameList(config['channelNameList']);
     }
     else{
-      this.q.os.ocean.dolphin.setChannelNameList(this.config['channelNameList']);
+      this.dolphin.setChannelNameList(this.config['channelNameList']);
     }
     if(typeof(config['channelFolderList']) != 'undefined'){
       console.log('Config: Importing Folder List ...',config['channelFolderList']);
