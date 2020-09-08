@@ -1,25 +1,21 @@
-import { Injectable } from '@angular/core';
+// import { Injectable } from '@angular/core';
 import { v4 as uuidv4 } from 'uuid';
 import { Subject } from 'rxjs';
 
 // import { saveAs } from 'file-saver';
+//
+// interface TreeNode<T> {
+//   data: T;
+//   children?: TreeNode<T>[];
+//   expanded?: boolean;
+// }
+//
+// interface FSEntry {
+//   name: string;
+//   kind: string;
+//   items?: number;
+// }
 
-interface TreeNode<T> {
-  data: T;
-  children?: TreeNode<T>[];
-  expanded?: boolean;
-}
-
-interface FSEntry {
-  name: string;
-  kind: string;
-  items?: number;
-}
-
-
-@Injectable({
-  providedIn: 'root'
-})
 
 
 export class BeeConfig {
@@ -28,7 +24,7 @@ export class BeeConfig {
   constructor() {
 
     this.config = {
-      version: version,
+      version: "0.9.2",
       appId: 'quest-messenger-js',
       channelKeyChain:   {},
       channelParticipantList: {},
@@ -50,6 +46,11 @@ export class BeeConfig {
     this.dolphin = uVar;
     this.commitChanges = false;
     this.channelFolderListSub = new Subject();
+    this.sideBarVisibleSub = new Subject();
+    this.sideBarFixedSub = new Subject();
+    this.commitSub = new Subject();
+    this.commitNowSub = new Subject();
+    this.selectedChannelSub = new Subject();
     this.pFICache = uVar;
 
   }
@@ -84,7 +85,7 @@ export class BeeConfig {
 
   selectChannel(channelName){
     this.config['selectedChannel'] = channelName;
-    commit();
+    this.commit();
     return true;
   }
   setSelectedChannel(value){
@@ -123,7 +124,7 @@ export class BeeConfig {
         channelKeyChain:   this.dolphin.getChannelKeyChain(),
         channelParticipantList: this.dolphin.getChannelParticipantList(),
         channelNameList: this.dolphin.getChannelNameList(),
-        channelFolderList: this.config.channelFolderList,
+        channelFolderList: this.getChannelFolderList(),
         selectedChannel: this.dolphin.getSelectedChannel(),
         sideBarFixed: this.getSideBarFixed(),
         sideBarVisible: this.getSideBarVisible(),
@@ -196,14 +197,13 @@ export class BeeConfig {
     }
 
     if(typeof(config['inviteCodes']) != 'undefined' && Object.keys(config['inviteCodes']).length !== 0){
-      this.setInviteCodes(config['inviteCodes']);
+      this.dolphin.setInviteCodes(config['inviteCodes']);
     }
 
 
     return true;
   }
 
-  sideBarFixedSub = new Subject();
   setSideBarFixed(sideBarFixed){
     this.config.sideBarFixed = sideBarFixed
     this.sideBarFixedSub.next(sideBarFixed);
@@ -211,7 +211,6 @@ export class BeeConfig {
   getSideBarFixed(){
       return this.config.sideBarFixed;
   }
-  sideBarVisibleSub = new Subject();
   setSideBarVisible(sideBarVisible){
     this.config.sideBarVisible = sideBarVisible;
     this.sideBarVisibleSub.next(sideBarVisible);
@@ -335,52 +334,7 @@ export class BeeConfig {
 
 
 
-  async importChannel(channelName,folders,parentFolderId,inviteToken,importFolderStructure){
 
-    if(importFolderStructure == 1 && folders.length > 0){
-        //see if folders exist starting at parentFolderId
-        console.log(parentFolderId);
-        let chfl = this.getChannelFolderList();
-        for(let i=0; i<folders.length;i++){
-          let newFolder = { data: { name: folders[i], kind:"dir", items: 0 }, id: uuidv4(),expanded: true, children: [] };
-
-          if(parentFolderId == ""){
-            //check if exist at top level
-            let exists = false;
-            for (let i2=0;i2<chfl.length;i2++){
-              if(chfl[i2]['data']['name'] == newFolder['data']['name']){
-                exists = true;
-                if(typeof chfl[i2]['id'] == 'undefined'){
-                  chfl[i2]['id'] = uuidv4();
-                }
-                parentFolderId = chfl[i2]['id'];
-                this.pFICache = parentFolderId;
-              }
-            }
-            if(!exists){
-              parentFolderId = newFolder['id'];
-              this.pFICache = parentFolderId;
-              chfl.push(newFolder);
-            }
-          }
-          else{
-            chfl = this.parseFolderStructureAndPushItem(chfl, parentFolderId, newFolder, true);
-            if(typeof this.pFICache != 'undefined' && this.pFICache != null){
-              parentFolderId = this.pFICache;
-            }
-         }
-
-
-        }
-        this.pFICache = null;
-       this.setChannelFolderList(chfl);
-    }
-
-    console.log(parentFolderId);
-    await this.addChannel(channelName, parentFolderId);
-    this.addInviteToken(channelName,inviteToken);
-    return true;
-  }
 
 
 

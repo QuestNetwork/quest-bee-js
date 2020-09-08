@@ -1,4 +1,4 @@
-import * as Ipfs from 'ipfs';
+// import * as Ipfs from 'ipfs';
 const { v4: uuidv4 } = require('uuid');
 import { Subject } from "rxjs";
 import { BeeConfig } from "./beeConfig.js";
