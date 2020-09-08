@@ -17,13 +17,12 @@ Ethereum:
 
 ## Description
 
-The Bee Service interacts with optional user facing technology and [Quest Dolphin JS](https://github.com/QuestNetwork/quest-dolphin-js).
+The Bee Service interacts with optional user facing technology, data persistence, [Quest Dolphin JS](https://github.com/QuestNetwork/quest-dolphin-js).
 It stores and synchronizes configuration data, discovers relevant dolphin peers, spawns, protects and repairs multiple pods of dolphin instances and provides core protocol nodes to multiple pods of dolphin instances when used in a single application.
 
 ## Roadmap
 
 **0.5.1**
- - Uses [go-ipfs](https://github.com/ipfs/go-ipfs) from NodeJS and [js-ipfs](https://github.com/ipfs/js-ipfs) from Electron/Web
  - Uses [quest-star-rust](https://github.com/QuestNetwork/quest-star-rust) from NodeJS and Electron
 
 ## Installation & Usage
@@ -31,4 +30,4 @@ It stores and synchronizes configuration data, discovers relevant dolphin peers,
 
 ## License
 
-GNU GPLv3
+GNU AGPLv3
