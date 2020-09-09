@@ -56,6 +56,8 @@ export class BeeConfig {
     this.commitNowSub = new Subject();
     this.selectedChannelSub = new Subject();
     this.pFICache = uVar;
+    this.hasConfigFlag = false;
+
 
   }
 
@@ -273,6 +275,10 @@ export class BeeConfig {
       return false;
     }
   }
+
+  hasConfig(){
+    return this.hasConfigFlag;
+  }
   readConfig(config = {}){
     try{
       if(this.isElectron){
@@ -320,7 +326,7 @@ export class BeeConfig {
     if(typeof config['expandedChannelFolderItems']  !='undefined'){
       this.setExpandedChannelFolderItems(config['expandedChannelFolderItems']);
     }
-
+    this.hasConfigFlag = true;
     return true;
   }
 
