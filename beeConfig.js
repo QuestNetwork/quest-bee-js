@@ -358,6 +358,9 @@ export class BeeConfig {
      this.setChannelFolderList(chfl);
      this.channelFolderListSub.next(chfl);
    }
+   async deleteFolder(folderId){
+     this.setChannelFolderList(this.parseFolderStructureAndRemoveItemById(this.getChannelFolderList(),folderId));
+   }
 
   parseFolderStructureAndPushItem(folderStructure, parentFolderId = "", newFolder,ifdoesntexist = false){
     for(let i=0;i<folderStructure.length;i++){
@@ -417,6 +420,25 @@ export class BeeConfig {
     }
     return folderStructure;
   }
+
+  parseFolderStructureAndRemoveItemById(folderStructure, id){
+    folderStructure = folderStructure.filter(e => e['id'] != id);
+
+    for(let i=0;i<folderStructure.length;i++){
+      if(typeof folderStructure[i]['children'] == 'undefined'){
+         folderStructure[i]['children'] = [];
+      }
+      for (let i2=0;i2<folderStructure[i]['children'].length;i2++){
+        folderStructure[i]['children'] = folderStructure[i]['children'].filter(e => e['id'] != id);
+      }
+      if(typeof(folderStructure[i]['children']) != 'undefined'){
+        folderStructure[i]['children'] = this.parseFolderStructureAndRemoveItemById(folderStructure[i]['children'], id);
+      }
+
+    }
+    return folderStructure;
+  }
+
 
 
   parseFolderStructureAndGetPath(folderStructure, channelName, path = []){
