@@ -164,6 +164,24 @@ export class BeeConfig {
       return id;
     }
   }
+  getChannelListChildren(idOrName){
+
+  }
+  getChannelListChildrenRec(chFL,id){
+    for(let i=0;i<chFL.length;i++){
+      console.log(chFL[i]['id']);
+      if(typeof chFL[i]['id'] !='undefined' && chFL[i]['id'] == id){
+        return chFL[i]['children'];
+      }
+      else if(typeof chFL[i]['data']['name'] !='undefined' && chFL[i]['data']['name'] == id){
+        return chFL[i]['children'];
+      }
+      else{
+        return this.getChannelListChildrenRec(chFL[i]['children'],id);
+      }
+    }
+    return [];
+  }
   getFolderNameFromIdRec(chFL,id){
     for(let i=0;i<chFL.length;i++){
       console.log(chFL[i]['id']);
