@@ -112,7 +112,90 @@ export class BeeConfig {
 
 
   getChannelFolderList(){
-    return this.config.channelFolderList;
+    // return JSON.parse(JSON.stringify());
+    return this.config['channelFolderList'];
+  }
+
+  isChannelFolderItemFolder(id){
+    return this.isChannelFolderItemFolderRec(this.getChannelFolderList(),id);
+  }
+
+  isChannelFolderItemFolderRec(chFL,id){
+    for(let i=0;i<chFL.length;i++){
+      if(chFL[i]['id'] == id){
+        if(chFL[i]['data']['kind'] == 'dir'){ return true; }
+      }
+      else if(typeof chFL[i]['children'] != 'undefined' && chFL[i]['children'].length > 0){
+        let isFolder = this.isChannelFolderItemFolderRec(chFL[i]['children'],id);
+        if(isFolder){
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  getFolderNameFromId(id){
+    console.log('id:',id);
+    let testName = this.getFolderNameFromIdRec(this.getChannelFolderList(),id);
+    console.log('name:',testName);
+
+    if(testName != "NameNotFound"){
+      return testName;
+    }
+    else{
+      return id;
+    }
+  }
+  getFolderNameFromIdRec(chFL,id){
+    for(let i=0;i<chFL.length;i++){
+      console.log(chFL[i]['id']);
+      if(chFL[i]['id'] == id){
+        return chFL[i]['data']['name'];
+      }
+      else if(typeof chFL[i]['children'] != 'undefined' && chFL[i]['children'].length > 0){
+        let testName = this.getFolderNameFromIdRec(chFL[i]['children'],id);
+        if(testName != "NameNotFound"){
+          return testName;
+        }
+      }
+    }
+
+    return "NameNotFound"
+  }
+
+  channelFolderListToChannelFolderIDList(chFL, parentId = ""){
+    let chIDL = {};
+    console.log(chFL);
+    for(let i=0;i<chFL.length;i++){
+
+
+      if(typeof chFL[i]['id'] != 'undefined' && (typeof chFL[i]['children'] != 'undefined' && chFL[i]['children'].length > 0)){
+        chIDL[chFL[i]['id']] = this.channelFolderListToChannelFolderIDList(chFL[i]['children'], parentId = "");
+      }
+      else if(typeof chFL[i]['id'] != 'undefined' && (typeof chFL[i]['children'] == 'undefined' || chFL[i]['children'].length == 0)){
+        chIDL[chFL[i]['id']] = {}
+        if(chFL[i]['data']['kind'] == 'dir'){
+          chIDL[chFL[i]['id']]['emptyFolder'] = {};
+        }
+      }
+      else if(typeof chFL[i]['id'] == 'undefined' && (typeof chFL[i]['children'] != 'undefined' && chFL[i]['children'].length > 0)){
+        chIDL[chFL[i]['data']['name']] = this.channelFolderListToChannelFolderIDList(chFL[i]['children'], parentId = "");
+      }
+      else if(typeof chFL[i]['id'] == 'undefined'  && (typeof chFL[i]['children'] == 'undefined' || chFL[i]['children'].length == 0)){
+        chIDL[chFL[i]['data']['name']] = {}
+        if(chFL[i]['data']['kind'] == 'dir'){
+          chIDL[chFL[i]['data']['name']]['emptyFolder'] = {};
+        }
+      }
+    }
+    return chIDL;
+  }
+  getChannelFolderIDList(){
+    let chFL = this.config.channelFolderList;
+    chFL = this.channelFolderListToChannelFolderIDList(chFL);
+    return chFL;
   }
 
   commitNow(){
@@ -230,6 +313,7 @@ export class BeeConfig {
         chfl = this.parseFolderStructureAndPushItem(chfl, parentFolderId, newFolder);
      }
      this.setChannelFolderList(chfl);
+     this.channelFolderListSub.next(chfl);
    }
 
   parseFolderStructureAndPushItem(folderStructure, parentFolderId = "", newFolder,ifdoesntexist = false){
@@ -330,6 +414,8 @@ export class BeeConfig {
       chfl = this.parseFolderStructureAndPushItem(chfl, parentFolderId, newChannel);
    }
    this.setChannelFolderList(chfl);
+   this.channelFolderListSub.next(chfl);
+
   }
 
 
