@@ -21,6 +21,7 @@ import { Subject } from 'rxjs';
 export class BeeConfig {
 
 
+
   constructor() {
 
     this.config = {
@@ -30,11 +31,14 @@ export class BeeConfig {
       channelParticipantList: {},
       channelNameList: [],
       channelFolderList: [],
+      expandedChannelFolderItems: [],
       selectedChannel: "NoChannelSelected",
       sideBarFixed: { left: true, right: true},
       sideBarVisible: { left: true, right: false},
       inviteCodes: {}
     };
+
+    this.flatChannelFolderIdList = {};
 
     let uVar;
     this.version = uVar;
@@ -121,9 +125,12 @@ export class BeeConfig {
   }
 
   isChannelFolderItemFolderRec(chFL,id){
+
     for(let i=0;i<chFL.length;i++){
-      if(chFL[i]['id'] == id){
-        if(chFL[i]['data']['kind'] == 'dir'){ return true; }
+      if(typeof chFL[i]['id'] != 'undefined' && chFL[i]['id'] == id){
+        if(typeof chFL[i]['data']['kind'] != 'undefined' && chFL[i]['data']['kind'] == 'dir'){
+          return true;
+        }
       }
       else if(typeof chFL[i]['children'] != 'undefined' && chFL[i]['children'].length > 0){
         let isFolder = this.isChannelFolderItemFolderRec(chFL[i]['children'],id);
@@ -136,12 +143,19 @@ export class BeeConfig {
     return false;
   }
 
+
   getFolderNameFromId(id){
+
+    if(typeof this.flatChannelFolderIdList[id] != 'undefined'){
+      return this.flatChannelFolderIdList[id];
+    }
+
     console.log('id:',id);
     let testName = this.getFolderNameFromIdRec(this.getChannelFolderList(),id);
     console.log('name:',testName);
 
     if(testName != "NameNotFound"){
+      this.flatChannelFolderIdList[id] = testName;
       return testName;
     }
     else{
@@ -151,7 +165,7 @@ export class BeeConfig {
   getFolderNameFromIdRec(chFL,id){
     for(let i=0;i<chFL.length;i++){
       console.log(chFL[i]['id']);
-      if(chFL[i]['id'] == id){
+      if(typeof chFL[i]['id'] !='undefined' && chFL[i]['id'] == id){
         return chFL[i]['data']['name'];
       }
       else if(typeof chFL[i]['children'] != 'undefined' && chFL[i]['children'].length > 0){
@@ -165,28 +179,47 @@ export class BeeConfig {
     return "NameNotFound"
   }
 
+  setExpandedChannelFolderItems(exp){
+    console.log('setting',exp);
+    this.config['expandedChannelFolderItems'] = exp;
+  }
+  getExpandedChannelFolderItems(){
+    if(typeof this.config['expandedChannelFolderItems'] != 'undefined'){
+      return this.config['expandedChannelFolderItems'];
+    }
+    return [];
+  }
+
   channelFolderListToChannelFolderIDList(chFL, parentId = ""){
     let chIDL = {};
     console.log(chFL);
     for(let i=0;i<chFL.length;i++){
 
 
+
       if(typeof chFL[i]['id'] != 'undefined' && (typeof chFL[i]['children'] != 'undefined' && chFL[i]['children'].length > 0)){
         chIDL[chFL[i]['id']] = this.channelFolderListToChannelFolderIDList(chFL[i]['children'], parentId = "");
-      }
-      else if(typeof chFL[i]['id'] != 'undefined' && (typeof chFL[i]['children'] == 'undefined' || chFL[i]['children'].length == 0)){
-        chIDL[chFL[i]['id']] = {}
-        if(chFL[i]['data']['kind'] == 'dir'){
+        if(typeof chFL[i]['data']['kind'] != 'undefined' && chFL[i]['data']['kind'] == 'dir'){
           chIDL[chFL[i]['id']]['emptyFolder'] = {};
         }
       }
+      else if(typeof chFL[i]['id'] != 'undefined' && (typeof chFL[i]['children'] == 'undefined' || chFL[i]['children'].length == 0)){
+        chIDL[chFL[i]['id']] = {}
+        if(typeof chFL[i]['data']['kind'] != 'undefined' && chFL[i]['data']['kind'] == 'dir'){
+          chIDL[chFL[i]['id']]['emptyFolder'] = {};
+        }
+
+      }
       else if(typeof chFL[i]['id'] == 'undefined' && (typeof chFL[i]['children'] != 'undefined' && chFL[i]['children'].length > 0)){
         chIDL[chFL[i]['data']['name']] = this.channelFolderListToChannelFolderIDList(chFL[i]['children'], parentId = "");
+        if(typeof chFL[i]['data']['kind'] != 'undefined' && chFL[i]['data']['kind'] == 'dir'){
+        chIDL[chFL[i]['data']['name']]['emptyFolder'] = {};
+        }
       }
       else if(typeof chFL[i]['id'] == 'undefined'  && (typeof chFL[i]['children'] == 'undefined' || chFL[i]['children'].length == 0)){
         chIDL[chFL[i]['data']['name']] = {}
-        if(chFL[i]['data']['kind'] == 'dir'){
-          chIDL[chFL[i]['data']['name']]['emptyFolder'] = {};
+        if(typeof chFL[i]['data']['kind'] != 'undefined' && chFL[i]['data']['kind'] == 'dir'){
+        chIDL[chFL[i]['data']['name']]['emptyFolder'] = {};
         }
       }
     }
@@ -208,10 +241,11 @@ export class BeeConfig {
         channelParticipantList: this.dolphin.getChannelParticipantList(),
         channelNameList: this.dolphin.getChannelNameList(),
         channelFolderList: this.getChannelFolderList(),
+        expandedChannelFolderItems: this.getExpandedChannelFolderItems(),
         selectedChannel: this.dolphin.getSelectedChannel(),
         sideBarFixed: this.getSideBarFixed(),
         sideBarVisible: this.getSideBarVisible(),
-        inviteCodes: this.dolphin.getInviteCodes()
+        inviteCodes: this.dolphin.getInviteCodes(),
       };
 
       if(this.isElectron){
@@ -283,6 +317,9 @@ export class BeeConfig {
       this.dolphin.setInviteCodes(config['inviteCodes']);
     }
 
+    if(typeof config['expandedChannelFolderItems']  !='undefined'){
+      this.setExpandedChannelFolderItems(config['expandedChannelFolderItems']);
+    }
 
     return true;
   }
@@ -305,7 +342,7 @@ export class BeeConfig {
 
   async createFolder(newFolderNameDirty, parentFolderId = ""){
       let chfl = this.getChannelFolderList();
-      let newFolder = { data: { name: newFolderNameDirty, kind:"dir", items: 0 }, expanded: true, children: [] };
+      let newFolder = { id: uuidv4(), data: { name: newFolderNameDirty, kind:"dir", items: 0 }, expanded: true, children: [] };
       if(parentFolderId == ""){
         chfl.push(newFolder);
       }
