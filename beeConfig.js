@@ -35,7 +35,8 @@ export class BeeConfig {
       selectedChannel: "NoChannelSelected",
       sideBarFixed: { left: true, right: true},
       sideBarVisible: { left: true, right: false},
-      inviteCodes: {}
+      inviteCodes: {},
+      saveLock: false
     };
 
     this.flatChannelFolderIdList = {};
@@ -58,6 +59,7 @@ export class BeeConfig {
     this.pFICache = uVar;
     this.hasConfigFlag = false;
     this.parseAndImportParentIdCache = "";
+    this.saveLockStatusSub = new Subject();
 
 
   }
@@ -101,6 +103,13 @@ export class BeeConfig {
     this.config['selectedChannel'] = value;
   }
 
+  getSaveLock(){
+    return this.saveLock;
+  }
+  setSaveLock(value){
+    this.saveLock = value;
+    this.saveLockStatusSub.next(value);
+  }
 
   commit(){
     this.commitChanges = true;
@@ -341,7 +350,12 @@ setAutoSaveInterval(value){
     return chFL;
   }
 
-  commitNow(){
+  commitNow(config = { export: false }){
+
+    if(!config['export'] && this.getSaveLock()){
+      return true;
+    }
+
       // let folderList: TreeNode<FSEntry> = ;
       this.commitChanges=false;
       this.config = {
@@ -360,7 +374,7 @@ setAutoSaveInterval(value){
         autoSaveFlag: true
       };
 
-      if(this.isElectron){
+      if(this.isElectron && !config['export']){
         this.fs.writeFileSync(this.configFilePath, JSON.stringify(this.config),{encoding:'utf8',flag:'w'})
       }
       else{
@@ -372,22 +386,27 @@ setAutoSaveInterval(value){
   getConfig(){
     return this.config;
   }
+  deleteConfig(){
+
+          if(this.isElectron){
+            this.fs.unlinkSync(this.configFilePath);
+          }
+
+  }
   setChannelFolderList(list){
     this.config.channelFolderList = list;
     this.channelFolderListSub.next(list);
   }
 
-  isSignedIn(){
-    if(this.isElectron){
-      return this.fs.existsSync(this.configFilePath);
-    }
-    else{
-      return false;
-    }
-  }
 
   hasConfig(){
     return this.hasConfigFlag;
+  }
+  hasConfigFile(){
+    if(this.isElectron){
+      return this.fs.existsSync(this.configFilePath);
+    }
+    return false;
   }
   readConfig(config = {}){
     try{
@@ -442,6 +461,11 @@ setAutoSaveInterval(value){
     if(typeof config['autoSaveInterval'] != 'undefined'){
       this.setAutoSaveInterval(config['autoSaveInterval']);
     }
+
+    if(typeof config['saveLock'] != 'undefined'){
+      this.setSaveLock(config['saveLock']);
+    }
+
 
     this.hasConfigFlag = true;
     return true;
