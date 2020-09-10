@@ -57,9 +57,12 @@ export class BeeConfig {
     this.selectedChannelSub = new Subject();
     this.pFICache = uVar;
     this.hasConfigFlag = false;
+    this.parseAndImportParentIdCache = "";
 
 
   }
+
+
 
   async start(config){
     this.version = config['version'];
@@ -103,14 +106,28 @@ export class BeeConfig {
     this.commitChanges = true;
   }
 
-  autoSave(){
-    this.autoSaveInterval = setInterval( () => {
-        if(this.isElectron && this.commitChanges){
-          this.commitNow();
-          this.commitChanges = false;
-        }
-    },30000)
+  enableAutoSave(){
+    this.autoSaveFlag = true;
+    this.autoSave();
   }
+
+  disableAutoSave(){
+    this.autoSaveFlag = false;
+  }
+setAutoSaveInterval(value){
+  this.config['autoSaveInterval'] = value;
+}
+    async autoSave(){
+      console.log('Running autoSave...');
+          if(this.config['autoSaveFlag'] != 'undefined' && this.config['autoSaveFlag'] && this.isElectron && this.commitChanges){
+            this.commitNow();
+            this.commitChanges = false;
+          }
+          if(this.config['autoSaveFlag'] != 'undefined' && this.config['autoSaveFlag'] && this.isElectron){
+            await this.delay(autoSaveInterval);
+            autoSave();
+          }
+    }
 
     isInArray(value, array) {
      return array.indexOf(value) > -1;
@@ -236,7 +253,7 @@ export class BeeConfig {
             for(let i2 = 0;i2<chFL[i]['children'].length;i2++){
                 console.log('BeeConfig: Testing Root....');
                 console.log(chFL[i]['children'][i2]['data']['name']);
-                if(chFL[i]['children'][i2]['id'].indexOf('-----') > -1 || chFL[i]['children'][i2]['data']['name'].indexOf('-----') > -1){
+                if((typeof chFL[i]['children'][i2]['id'] == 'undefined' && chFL[i]['children'][i2]['data']['name'].indexOf('-----') > -1) || chFL[i]['children'][i2]['id'].indexOf('-----') > -1 ){
                   return true;
                 }
                 else if(typeof chFL[i]['children'][i2]['children'] != 'undefined' &&  chFL[i]['children'][i2]['children'].length > 0 ){
@@ -260,7 +277,7 @@ export class BeeConfig {
       for(let i2 = 0;i2<chFL.length;i2++){
           console.log('BeeConfig: Testing Sub....');
           console.log(chFL[i]['data']['name']);
-          if(chFL[i]['id'].indexOf('-----') > -1 || chFL[i]['children'].indexOf('-----') > -1){
+          if((typeof chFL[i]['id'] != 'undefined' && chFL[i]['id'].indexOf('-----') > -1 )|| chFL[i]['data']['name'].indexOf('-----') > -1){
             return true;
           }
           else if(typeof chFL[i]['children'] != 'undefined' &&  chFL[i]['children'].length > 0 ){
@@ -339,6 +356,8 @@ export class BeeConfig {
         sideBarFixed: this.getSideBarFixed(),
         sideBarVisible: this.getSideBarVisible(),
         inviteCodes: this.dolphin.getInviteCodes(),
+        autoSaveInterval: 1000*30,
+        autoSaveFlag: true
       };
 
       if(this.isElectron){
@@ -417,6 +436,13 @@ export class BeeConfig {
     if(typeof config['expandedChannelFolderItems']  !='undefined'){
       this.setExpandedChannelFolderItems(config['expandedChannelFolderItems']);
     }
+    if((this.isElectron && typeof config['autoSaveFlag'] == 'undefined') || config['autoSaveFlag'] == true){
+      this.enableAutoSave();
+    }
+    if(typeof config['autoSaveInterval'] != 'undefined'){
+      this.setAutoSaveInterval(config['autoSaveInterval']);
+    }
+
     this.hasConfigFlag = true;
     return true;
   }
@@ -447,50 +473,70 @@ export class BeeConfig {
         chfl = this.parseFolderStructureAndPushItem(chfl, parentFolderId, newFolder);
      }
      this.setChannelFolderList(chfl);
+     this.commitNow();
      this.channelFolderListSub.next(chfl);
    }
    async deleteFolder(folderId){
      this.setChannelFolderList(this.parseFolderStructureAndRemoveItemById(this.getChannelFolderList(),folderId));
+     this.commitNow();
+     return true;
    }
 
-  parseFolderStructureAndPushItem(folderStructure, parentFolderId = "", newFolder,ifdoesntexist = false){
-    for(let i=0;i<folderStructure.length;i++){
-      if(folderStructure[i]['id'] == parentFolderId){
-        if(!ifdoesntexist){
-          folderStructure[i]['children'].push(newFolder);
-        }
-        else{
-
-          let exists = false;
-          if(typeof folderStructure[i]['children'] == 'undefined'){
-             folderStructure[i]['children'] = [];
+  getParseAndImportParentIdCache(){
+    return this.parseAndImportParentIdCache;
+  }
+  parseFolderStructureAndPushItem(chFL, parentFolderId = "", newFolder,ifdoesntexist = false){
+    if(parentFolderId == ""){
+      //check if exist at top level
+      let exists = false;
+      for (let i=0;i<chFL.length;i++){
+        if(chFL[i]['data']['name'] == newFolder['data']['name']){
+          exists = true;
+          if(typeof chFL[i]['id'] == 'undefined'){
+            chFL[i]['id'] = uuidv4();
           }
-
-          for (let i2=0;i2<folderStructure[i]['children'].length;i2++){
-            if(folderStructure[i]['children'][i2]['data']['name'] == newFolder['data']['name']){
-              exists = true;
-              if(typeof folderStructure[i]['children'][i2]['id'] == 'undefined'){
-                folderStructure[i]['children'][i2]['id'] = uuidv4();
-              }
-              parentFolderId = folderStructure[i]['children'][i2]['id'];
-            }
-          }
-          if(!exists){
-            parentFolderId = newFolder['id'];
-            this.pFICache = parentFolderId;
-            console.log(parentFolderId);
-            folderStructure[i]['children'].push(newFolder);
-          }
-
+          parentFolderId = chFL[i]['id'];
+          this.parseAndImportParentIdCache = parentFolderId;
         }
       }
-      else{
-        if(typeof(folderStructure[i]['children']) != 'undefined'){
-          folderStructure[i]['children'] = this.parseFolderStructureAndPushItem(folderStructure[i]['children'], parentFolderId, newFolder,ifdoesntexist);
-        }
+      if(!exists){
+        parentFolderId = newFolder['id'];
+        this.parseAndImportParentIdCache = parentFolderId;
+        chFL.push(newFolder);
       }
     }
-    return folderStructure;
+    else{
+        chFL = this.parseFolderStructureAndPushItemRec(chFL, parentFolderId, newFolder, true);
+     }
+
+     return chFL;
+  }
+  parseFolderStructureAndPushItemRec(chFL, parentFolderId = "", newFolder,ifdoesntexist = false){
+    for(let i=0; i<chFL.length;i++){
+            if(parentFolderId == chFL[i]['id'] || parentFolderId == chFL[i]['data']['name']){
+              //we found the parent this is going into
+              let exists = false;
+              for (let chFLC_I=0;chFLC_I[i]<chFL[i]['children'].length;chFLC_I++){
+                if(chFL[i]['children'][chFLC]['data']['name'] == newFolder['data']['name']){
+                  exists = true;
+                  if(typeof chFL[i]['id'] == 'undefined'){
+                    chFL[i]['id'] = uuidv4();
+                  }
+                  parentFolderId = chFL[i]['id'];
+                  this.parseAndImportParentIdCache = parentFolderId;
+                }
+              }
+              if(!exists){
+                chFL[i]['children'].push(newFolder);
+                parentFolderId = newFolder['id'];
+                this.parseAndImportParentIdCache = newFolder['id'];
+              }
+            }
+            else{
+                chFL[i]['children'] = this.parseFolderStructureAndPushItemRec(chFL[i]['children'], parentFolderId, newFolder, true);
+             }
+    }
+    return chFL;
   }
 
 
