@@ -146,35 +146,48 @@ export class BeeConfig {
   }
 
 
-  getFolderNameFromId(id){
+ getFolderNameFromId(id){
 
-    if(typeof this.flatChannelFolderIdList[id] != 'undefined'){
-      return this.flatChannelFolderIdList[id];
-    }
 
-    console.log('id:',id);
-    let testName = this.getFolderNameFromIdRec(this.getChannelFolderList(),id);
-    console.log('name:',testName);
+      if(typeof this.flatChannelFolderIdList[id] != 'undefined'){
+        return this.flatChannelFolderIdList[id];
+      }
 
-    if(testName != "NameNotFound"){
-      this.flatChannelFolderIdList[id] = testName;
-      return testName;
-    }
-    else{
-      return id;
-    }
+      console.log('id:',id);
+      let testName = this.getFolderNameFromIdRec(this.getChannelFolderList(),id);
+      console.log('name:',testName);
+
+      if(testName != "NameNotFound"){
+        this.flatChannelFolderIdList[id] = testName;
+        return testName;
+      }
+      else{
+        return id;
+      }
+
+
+
   }
   getChannelListChildren(idOrName){
 
   }
   getChannelListChildrenRec(chFL,id){
     for(let i=0;i<chFL.length;i++){
-      console.log(chFL[i]['id']);
       if(typeof chFL[i]['id'] !='undefined' && chFL[i]['id'] == id){
+        if(typeof chFL[i]['children'] != 'undefined' && chFL[i]['children'].length > 0){
         return chFL[i]['children'];
+        }
+        else{
+          return [];
+        }
       }
       else if(typeof chFL[i]['data']['name'] !='undefined' && chFL[i]['data']['name'] == id){
-        return chFL[i]['children'];
+        if(typeof chFL[i]['children'] != 'undefined' && chFL[i]['children'].length > 0){
+          return chFL[i]['children'];
+        }
+        else{
+          return [];
+        }
       }
       else{
         return this.getChannelListChildrenRec(chFL[i]['children'],id);
@@ -184,7 +197,6 @@ export class BeeConfig {
   }
   getFolderNameFromIdRec(chFL,id){
     for(let i=0;i<chFL.length;i++){
-      console.log(chFL[i]['id']);
       if(typeof chFL[i]['id'] !='undefined' && chFL[i]['id'] == id){
         return chFL[i]['data']['name'];
       }
@@ -197,6 +209,67 @@ export class BeeConfig {
     }
 
     return "NameNotFound"
+  }
+  checkIfFolderIdChannels(id){
+    console.log("BeeConfig: Testing Children For Channels...");
+    let chFL = this.getChannelFolderList();
+    if(typeof chFL == 'undefined'){
+      throw('no folder list');
+    }
+    return this.checkIfFolderIdChannelsRec(chFL,id);
+  }
+  checkIfFolderIdChannelsRec(chFL = [],id = "0"){
+    console.log(chFL);
+    let foundChannels = false;
+    for(let i=0;i<chFL.length;i++){
+      console.log("BeeConfig: Looking For Root Folder...");
+      console.log(id);
+      console.log(chFL[i]['id']);
+      console.log(chFL[i]['data']['name']);
+
+      if(typeof chFL[i]['id'] !='undefined' && chFL[i]['id'] == id && typeof chFL[i]['children'] != 'undefined' && chFL[i]['children'].length > 0){
+              //FOUND ROOT
+            //we found the folder id, now check subfolders for channels
+            console.log('BeeConfig: Found Root Folder');
+            let childHasChannels = false;
+            console.log('BeeConfig: Checking Root Folder For Channels');
+            for(let i2 = 0;i2<chFL[i]['children'].length;i2++){
+                console.log('BeeConfig: Testing Root....');
+                console.log(chFL[i]['children'][i2]['data']['name']);
+                if(chFL[i]['children'][i2]['id'].indexOf('-----') > -1 || chFL[i]['children'][i2]['data']['name'].indexOf('-----') > -1){
+                  return true;
+                }
+                else if(typeof chFL[i]['children'][i2]['children'] != 'undefined' &&  chFL[i]['children'][i2]['children'].length > 0 ){
+                  if(this.checkIfFolderIdChannelsChildrenRec( chFL[i]['children'][i2]['children'])){
+                    return true;
+                  }
+                }
+            }
+      }
+      else if(typeof chFL[i]['children'] !='undefined' && this.checkIfFolderIdChannelsRec( chFL[i]['children'], id)){
+          return true
+      }
+
+    }
+
+    return false;
+  }
+  checkIfFolderIdChannelsChildrenRec( chFL){
+    console.log('BeeConfig: Checking Sub Folder For Channels');
+    for(let i =0;i<chFL.length;i++){
+      for(let i2 = 0;i2<chFL.length;i2++){
+          console.log('BeeConfig: Testing Sub....');
+          console.log(chFL[i]['data']['name']);
+          if(chFL[i]['id'].indexOf('-----') > -1 || chFL[i]['children'].indexOf('-----') > -1){
+            return true;
+          }
+          else if(typeof chFL[i]['children'] != 'undefined' &&  chFL[i]['children'].length > 0 ){
+            if(this.checkIfFolderIdChannelsChildrenRec(chFL[i]['children'])){
+              return true;
+            }
+          }
+      }
+    }
   }
 
   setExpandedChannelFolderItems(exp){
