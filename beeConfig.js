@@ -414,7 +414,7 @@ getIpfsBootstrapPeers(){
         autoSaveInterval: this.getAutoSaveInterval(),
         autoSaveFlag: this.getAutoSave(),
         dolphin: {
-          channelConfig: this.dolphin.getChannelConfig();
+          channelConfig: this.dolphin.getChannelConfig()
         }
 
       };
