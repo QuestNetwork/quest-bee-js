@@ -44,6 +44,7 @@ export class BeeConfig {
     let uVar;
     this.version = uVar;
     this.isElectron = false;
+    this.configPath = uVar;
     this.configFilePath = uVar;
     this.autoSaveInterval = uVar;
     this.fs = uVar;
@@ -67,19 +68,19 @@ export class BeeConfig {
   }
 
   async start(config){
+
     this.version = config['version'];
     this.jsonSwarm = config['ipfs']['swarm'];
     this.electron = config['dependencies']['electronService'];
     this.saveAs = config['dependencies']['saveAs'];
-
     this.dolphin = config['dependencies']['dolphin'];
 
     var userAgent = navigator.userAgent.toLowerCase();
     if (userAgent.indexOf(' electron/') > -1) {
       this.isElectron = true;
       this.fs = this.electron.remote.require('fs');
-      let configPath = this.electron.remote.app.getPath('userData');
-      this.configFilePath = configPath + "/user.qcprofile";
+      this.configPath = this.electron.remote.app.getPath('userData');
+      this.configFilePath = this.configPath + "/user.qcprofile";
     }
 
     this.commitNowSub.subscribe( (value) => {
@@ -146,6 +147,7 @@ getAutoSaveInterval(value){
   return this.config['autoSaveInterval']
 }
 getIpfsBootstrapPeers(){
+
   if(this.config['ipfsBootstrapPeers'] != 'undefined'){
     return this.config['ipfsBootstrapPeers'];
   }
@@ -508,6 +510,7 @@ getIpfsBootstrapPeers(){
 
   setIpfsBootstrapPeers(p){
     this.config['ipfsBootstrapPeers'] = p;
+    // this.commitNow();
   }
 
   setSideBarFixed(sideBarFixed){
