@@ -116,12 +116,12 @@ export class BeeConfig {
   }
 
   setAutoSave(value){
-    this.config['autoSaveFlag'] = value;
-    this.commit();
-    if(value && !this.autoSaveRunning){
-      this.autoSave();
+    if(value){
+      this.enableAutoSave();
     }
-    // this.autoSaveStatusSub.next(value);
+    else{
+      this.disableAutoSave();
+    }
   }
 
   commit(){
@@ -129,15 +129,17 @@ export class BeeConfig {
   }
 
   enableAutoSave(){
-    this.autoSaveFlag = true;
+    this.config['autoSaveFlag'] = true;
     if(!this.autoSaveRunning){
       this.autoSaveRunning = 1;
       this.autoSave();
     }
+    this.commit();
   }
 
   disableAutoSave(){
-    this.autoSaveFlag = false;
+    this['autoSaveFlag'] = false;
+    this.commitNow();
   }
 setAutoSaveInterval(value){
   this.config['autoSaveInterval'] = value;
@@ -156,22 +158,28 @@ getIpfsBootstrapPeers(){
   }
 }
     async autoSave(){
-      console.log('Running autoSave...');
-          if(this.config['autoSaveFlag'] != 'undefined' && this.config['autoSaveFlag'] && this.isElectron && this.commitChanges){
+      console.log('Bee: Running autoSave...');
+          if(this.config['autoSaveFlag'] != 'undefined' && this.config['autoSaveFlag']  && this.commitChanges){
             this.commitNow();
             this.commitChanges = false;
           }
-          if(this.config['autoSaveFlag'] != 'undefined' && this.config['autoSaveFlag'] && this.isElectron){
-            await this.delay(autoSaveInterval);
+          if(this.config['autoSaveFlag'] != 'undefined' && this.config['autoSaveFlag']){
+            await this.delay(this.config['autoSaveInterval']);
             this.autoSaveRunning = 0;
-            autoSave();
+            this.autoSave();
           }
     }
 
     isInArray(value, array) {
      return array.indexOf(value) > -1;
    }
-
+   delay(t, val = "") {
+      return new Promise(function(resolve) {
+          setTimeout(function() {
+              resolve(val);
+          }, t);
+      });
+   }
 
   getChannelFolderList(){
     // return JSON.parse(JSON.stringify());
@@ -387,6 +395,8 @@ getIpfsBootstrapPeers(){
     }
 
       // let folderList: TreeNode<FSEntry> = ;
+      let autoSaveInterval = this.config['autoSaveInterval'];
+
       this.commitChanges=false;
       this.config = {
         version: this.version,
@@ -401,8 +411,9 @@ getIpfsBootstrapPeers(){
         sideBarFixed: this.getSideBarFixed(),
         sideBarVisible: this.getSideBarVisible(),
         inviteCodes: this.dolphin.getInviteCodes(),
-        autoSaveInterval: 1000*30,
-        autoSaveFlag: true
+        autoSaveInterval: this.getAutoSaveInterval(),
+        autoSaveFlag: this.getAutoSave()
+
       };
 
       if(this.isElectron && !config['export']){
