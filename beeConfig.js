@@ -412,7 +412,10 @@ getIpfsBootstrapPeers(){
         sideBarVisible: this.getSideBarVisible(),
         inviteCodes: this.dolphin.getInviteCodes(),
         autoSaveInterval: this.getAutoSaveInterval(),
-        autoSaveFlag: this.getAutoSave()
+        autoSaveFlag: this.getAutoSave(),
+        dolphin: {
+          channelConfig: this.dolphin.getChannelConfig();
+        }
 
       };
 
@@ -513,6 +516,10 @@ getIpfsBootstrapPeers(){
 
     if(typeof config['ipfsBootstrapPeers'] != 'undefined'){
       this.setIpfsBootstrapPeers(config['ipfsBootstrapPeers']);
+    }
+
+    if(typeof config['dolphin'] != 'undefined' && typeof config['dolphin']['channelConfig'] != 'undefined'){
+      this.dolphin.setChannelConfig(config['dolphin']['channelConfig']);
     }
 
     this.hasConfigFlag = true;
