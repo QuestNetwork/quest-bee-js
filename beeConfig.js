@@ -523,7 +523,7 @@ getIpfsBootstrapPeers(){
     }
 
     this.hasConfigFlag = true;
-    return 1;
+    return true;
   }
 
   setIpfsBootstrapPeers(p){
