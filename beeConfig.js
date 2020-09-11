@@ -60,15 +60,15 @@ export class BeeConfig {
     this.hasConfigFlag = false;
     this.parseAndImportParentIdCache = "";
     this.saveLockStatusSub = new Subject();
+    this.autoSaveRunning = false;
+    this.jsonSwarm = {};
 
 
   }
 
-
-
   async start(config){
     this.version = config['version'];
-
+    this.jsonSwarm = config['ipfs']['swarm'];
     this.electron = config['dependencies']['electronService'];
     this.saveAs = config['dependencies']['saveAs'];
 
@@ -108,7 +108,19 @@ export class BeeConfig {
   }
   setSaveLock(value){
     this.saveLock = value;
-    this.saveLockStatusSub.next(value);
+    // this.saveLockStatusSub.next(value);
+  }
+  getAutoSave(){
+    return this.config['autoSaveFlag'];
+  }
+
+  setAutoSave(value){
+    this.config['autoSaveFlag'] = value;
+    this.commit();
+    if(value && !this.autoSaveRunning){
+      this.autoSave();
+    }
+    // this.autoSaveStatusSub.next(value);
   }
 
   commit(){
@@ -117,7 +129,10 @@ export class BeeConfig {
 
   enableAutoSave(){
     this.autoSaveFlag = true;
-    this.autoSave();
+    if(!this.autoSaveRunning){
+      this.autoSaveRunning = 1;
+      this.autoSave();
+    }
   }
 
   disableAutoSave(){
@@ -125,6 +140,18 @@ export class BeeConfig {
   }
 setAutoSaveInterval(value){
   this.config['autoSaveInterval'] = value;
+  this.commit();
+}
+getAutoSaveInterval(value){
+  return this.config['autoSaveInterval']
+}
+getIpfsBootstrapPeers(){
+  if(this.config['ipfsBootstrapPeers'] != 'undefined'){
+    return this.config['ipfsBootstrapPeers'];
+  }
+  else{
+    return this.jsonSwarm;
+  }
 }
     async autoSave(){
       console.log('Running autoSave...');
@@ -134,6 +161,7 @@ setAutoSaveInterval(value){
           }
           if(this.config['autoSaveFlag'] != 'undefined' && this.config['autoSaveFlag'] && this.isElectron){
             await this.delay(autoSaveInterval);
+            this.autoSaveRunning = 0;
             autoSave();
           }
     }
@@ -361,6 +389,7 @@ setAutoSaveInterval(value){
       this.config = {
         version: this.version,
         appId: 'quest-messenger-js',
+        ipfsBootstrapPeers: this.getIpfsBootstrapPeers(),
         channelKeyChain:   this.dolphin.getChannelKeyChain(),
         channelParticipantList: this.dolphin.getChannelParticipantList(),
         channelNameList: this.dolphin.getChannelNameList(),
@@ -461,14 +490,24 @@ setAutoSaveInterval(value){
     if(typeof config['autoSaveInterval'] != 'undefined'){
       this.setAutoSaveInterval(config['autoSaveInterval']);
     }
+    else{
+        this.setAutoSaveInterval(30000);
+    }
 
     if(typeof config['saveLock'] != 'undefined'){
       this.setSaveLock(config['saveLock']);
     }
 
+    if(typeof config['ipfsBootstrapPeers'] != 'undefined'){
+      this.setIpfsBootstrapPeers(config['ipfsBootstrapPeers']);
+    }
 
     this.hasConfigFlag = true;
     return true;
+  }
+
+  setIpfsBootstrapPeers(p){
+    this.config['ipfsBootstrapPeers'] = p;
   }
 
   setSideBarFixed(sideBarFixed){
