@@ -1,5 +1,5 @@
 # Quest Bee JS
-> A resiliant swarm of managers for [Quest Dolphin JS](https://github.com/QuestNetwork/quest-dolphin-js)
+> A resiliant swarm of managers for [Quest Dolphin JS](https://github.com/QuestNetwork/quest-dolphin-js) and [Quest Coral JS](https://github.com/QuestNetwork/quest-coral-js)
 
 ## Lead Maintainer
 
@@ -8,11 +8,11 @@
 
 ## Description
 
-The Bee process for the [Quest Network Operating System](https://github.com/QuestNetwork/quest-os-js) interacts with optional user facing technology, data persistence, [Quest Dolphin JS](https://github.com/QuestNetwork/quest-dolphin-js). It stores and synchronizes configuration data, discovers relevant dolphin peers, spawns, protects and repairs multiple pods of dolphin instances and provides core protocol nodes to multiple pods of dolphin instances when used in a single application.
+The Bee process for the [Quest Network Operating System](https://github.com/QuestNetwork/quest-os-js) interacts with optional user facing technology, [Quest Coral JS](https://github.com/QuestNetwork/quest-coral-js) and [Quest Dolphin JS](https://github.com/QuestNetwork/quest-dolphin-js). It stores and synchronizes configuration data, discovers relevant dolphin peers, spawns, protects and repairs multiple pods of dolphin instances and provides core protocol nodes to multiple pods of dolphin instances when used in a single application.
 
 ## Roadmap
 
-**0.5.1**
+**0.9.6**
  - Uses [quest-star-rust](https://github.com/QuestNetwork/quest-star-rust) from NodeJS and Electron
 
 ## Installation & Usage
