@@ -63,6 +63,7 @@ export class BeeConfig {
     this.saveLockStatusSub = new Subject();
     this.autoSaveRunning = false;
     this.jsonSwarm = {};
+    this.saveLock = false;
 
 
   }
@@ -389,6 +390,8 @@ getIpfsBootstrapPeers(){
   }
 
   commitNow(config = { export: false }){
+
+    console.log( this.getSaveLock());
 
     if(!config['export'] && this.getSaveLock()){
       return true;
