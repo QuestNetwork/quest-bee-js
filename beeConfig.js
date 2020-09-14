@@ -96,13 +96,12 @@ export class BeeConfig {
     return true;
   }
 
-  selectChannel(channelName){
-    this.config['selectedChannel'] = channelName;
-    this.commit();
-    return true;
-  }
+
   setSelectedChannel(value){
     this.config['selectedChannel'] = value;
+  }
+  getSelectedChannel(){
+    return this.config['selectedChannel'];
   }
 
   getSaveLock(){
@@ -441,6 +440,7 @@ getIpfsBootstrapPeers(){
           }
 
   }
+
   setChannelFolderList(list){
     this.config.channelFolderList = list;
     this.channelFolderListSub.next(list);
@@ -524,6 +524,8 @@ getIpfsBootstrapPeers(){
     if(typeof config['dolphin'] != 'undefined' && typeof config['dolphin']['channelConfig'] != 'undefined'){
       this.dolphin.setChannelConfig(config['dolphin']['channelConfig']);
     }
+
+    console.log("BeeConfig: Import Complete");
 
     this.hasConfigFlag = true;
     return true;
