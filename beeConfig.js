@@ -439,7 +439,7 @@ getIpfsBootstrapPeers(){
           }
 
           try{
-            this.localStorage.removeItem('user-qcprofile');
+            window.localStorage.removeItem('user-qcprofile');
           }catch(e){console.log(e);}
 
   }
