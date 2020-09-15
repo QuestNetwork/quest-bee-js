@@ -467,6 +467,18 @@ getIpfsBootstrapPeers(){
     }
     return false;
   }
+  hasAccessToLocalStorage(){
+    let locTest = uuidv4();
+    try {
+      window.localStorage.setItem('locTest',locTest);
+      if(window.localStorage.getItem('locTest') == locTest){
+        window.localStorage.removeItem('locTest');
+        return true;
+      }
+    } catch (e) {
+      return false;
+    }
+  }
   readConfig(config = {}){
     try{
       if(this.isElectron){
@@ -477,13 +489,8 @@ getIpfsBootstrapPeers(){
     if(!this.isElectron && typeof config['storageLocation'] != 'undefined'){
       this.setStorageLocation(config['storageLocation']);
     }
-    else if(!this.isElectron){
-      //TO DO test if local storage is available
-      // let hasLocal = 1;
-      // if(!hasLocal){ TODO !!!!
-      //     this.setStorageLocation('Download');
-      // }
-      // else{
+    else if(!this.isElectron && this.hasAccessToLocalStorage()){
+
                   try{
                       //try to parse config out of local storage
                       this.setStorageLocation('LocalStorage');
@@ -493,7 +500,9 @@ getIpfsBootstrapPeers(){
                       }
 
                   }catch(error){console.log(error);}
-      // }
+    }
+    else{
+          this.setStorageLocation('Download');
     }
 
     //put config into pubsub
