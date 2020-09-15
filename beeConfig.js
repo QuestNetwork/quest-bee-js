@@ -398,30 +398,58 @@ getIpfsBootstrapPeers(){
         inviteCodes: this.dolphin.getInviteCodes(),
         autoSaveInterval: this.getAutoSaveInterval(),
         autoSaveFlag: this.getAutoSave(),
+        storageLocation: this.getStorageLocation(),
         dolphin: {
           channelConfig: this.dolphin.getChannelConfig()
         }
 
       };
 
+      let saveAsDownload = false;
       if(this.isElectron && !config['export']){
         this.fs.writeFileSync(this.configFilePath, JSON.stringify(this.config),{encoding:'utf8',flag:'w'})
       }
+      else if(config['export'] || this.config.storageLocation == "Download"){
+        saveAsDownload = true;
+      }
       else{
+        try{
+          window.localStorage.setItem('user-qcprofile', JSON.stringify(this.config));
+        }catch(e){
+          saveAsDownload = true;
+        }
+      }
+
+      if(saveAsDownload){
         let userProfileBlob = new Blob([ JSON.stringify(this.config)], { type: 'text/plain;charset=utf-8' });
         this.saveAs(userProfileBlob, "profile.qcprofile");
       }
 
   }
+
   getConfig(){
     return this.config;
   }
   deleteConfig(){
 
           if(this.isElectron){
-            this.fs.unlinkSync(this.configFilePath);
+            try{
+              this.fs.unlinkSync(this.configFilePath);
+            }catch(e){console.log(e);}
           }
 
+          try{
+            this.localStorage.removeItem('user-qcprofile');
+          }catch(e){console.log(e);}
+
+  }
+
+
+  setStorageLocation(v){
+    this.config['storageLocation'] = v;
+  }
+  getStorageLocation(){
+    return this.config['storageLocation'];
   }
 
   setChannelFolderList(list){
@@ -442,9 +470,30 @@ getIpfsBootstrapPeers(){
   readConfig(config = {}){
     try{
       if(this.isElectron){
+        this.setStorageLocation('ConfigFile');
        config = JSON.parse(this.fs.readFileSync(this.configFilePath,"utf8"));
       }
     }catch(error){console.log(error);}
+    if(!this.isElectron && typeof config['storageLocation'] != 'undefined'){
+      this.setStorageLocation(config['storageLocation']);
+    }
+    else if(!this.isElectron){
+      //TO DO test if local storage is available
+      let hasLocal = 1;
+      if(!hasLocal){
+          this.setStorageLocation('Download');
+      }
+      else{
+                  try{
+                      //try to parse config out of local storage
+                      this.setStorageLocation('LocalStorage');
+                      let localStorage = JSON.parse(window.localStorage.getItem('user-qcprofile'));
+                      config = localStorage;
+
+                  }catch(error){console.log(error);}
+      }
+    }
+
     //put config into pubsub
     if(typeof(config['channelKeyChain']) != 'undefined'){
       this.dolphin.setChannelKeyChain(config['channelKeyChain']);
@@ -510,6 +559,7 @@ getIpfsBootstrapPeers(){
     if((this.isElectron && typeof config['autoSaveFlag'] == 'undefined') || config['autoSaveFlag'] == true){
       this.enableAutoSave();
     }
+
 
     console.log("BeeConfig: Import Complete");
 
