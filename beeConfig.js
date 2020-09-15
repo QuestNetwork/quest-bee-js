@@ -479,19 +479,21 @@ getIpfsBootstrapPeers(){
     }
     else if(!this.isElectron){
       //TO DO test if local storage is available
-      let hasLocal = 1;
-      if(!hasLocal){
-          this.setStorageLocation('Download');
-      }
-      else{
+      // let hasLocal = 1;
+      // if(!hasLocal){ TODO !!!!
+      //     this.setStorageLocation('Download');
+      // }
+      // else{
                   try{
                       //try to parse config out of local storage
                       this.setStorageLocation('LocalStorage');
                       let localStorage = JSON.parse(window.localStorage.getItem('user-qcprofile'));
-                      config = localStorage;
+                      if(localStorage['version'] == "0.9.2" || "0.9.3"){
+                        config = localStorage;
+                      }
 
                   }catch(error){console.log(error);}
-      }
+      // }
     }
 
     //put config into pubsub
