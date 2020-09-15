@@ -1,22 +1,5 @@
-// import { Injectable } from '@angular/core';
 import { v4 as uuidv4 } from 'uuid';
 import { Subject } from 'rxjs';
-
-// import { saveAs } from 'file-saver';
-//
-// interface TreeNode<T> {
-//   data: T;
-//   children?: TreeNode<T>[];
-//   expanded?: boolean;
-// }
-//
-// interface FSEntry {
-//   name: string;
-//   kind: string;
-//   items?: number;
-// }
-
-
 
 export class BeeConfig {
 
@@ -25,8 +8,8 @@ export class BeeConfig {
   constructor() {
 
     this.config = {
-      version: "0.9.2",
-      appId: 'quest-messenger-js',
+      version: "0.9.3",
+      appId: 'qDesk',
       channelKeyChain:   {},
       channelParticipantList: {},
       channelNameList: [],
@@ -88,17 +71,17 @@ export class BeeConfig {
       this.commitNow();
     });
 
-    this.selectedChannelSub.subscribe( (value) => {
-      this.config['selectedChannel'] = value;
-      this.commit();
-    });
-
     return true;
   }
 
-
   setSelectedChannel(value){
+    if(typeof value == 'undefined'){
+      return false
+    }
+
+    console.log('BeeConfig: Setting channel',value);
     this.config['selectedChannel'] = value;
+
   }
   getSelectedChannel(){
     return this.config['selectedChannel'];
@@ -402,14 +385,14 @@ getIpfsBootstrapPeers(){
       this.commitChanges=false;
       this.config = {
         version: this.version,
-        appId: 'quest-messenger-js',
+        appId: 'qDesk',
         ipfsBootstrapPeers: this.getIpfsBootstrapPeers(),
         channelKeyChain:   this.dolphin.getChannelKeyChain(),
         channelParticipantList: this.dolphin.getChannelParticipantList(),
         channelNameList: this.dolphin.getChannelNameList(),
         channelFolderList: this.getChannelFolderList(),
         expandedChannelFolderItems: this.getExpandedChannelFolderItems(),
-        selectedChannel: this.dolphin.getSelectedChannel(),
+        selectedChannel: this.getSelectedChannel(),
         sideBarFixed: this.getSideBarFixed(),
         sideBarVisible: this.getSideBarVisible(),
         inviteCodes: this.dolphin.getInviteCodes(),
@@ -484,9 +467,10 @@ getIpfsBootstrapPeers(){
       console.log('Config: Importing Folder List ...',config['channelFolderList']);
       this.setChannelFolderList(config['channelFolderList']);
     }
+
     if(typeof(config['selectedChannel']) != 'undefined'){
       console.log('Config: Importing Selected Channel ...',config['selectedChannel']);
-      this.setSelectedChannel(config['selectedChannel']);
+      this.setSelectedChannel(JSON.parse(JSON.stringify(config['selectedChannel'])));
     }
 
     if(typeof(config['sideBarFixed']) != 'undefined'){
@@ -503,9 +487,7 @@ getIpfsBootstrapPeers(){
     if(typeof config['expandedChannelFolderItems']  !='undefined'){
       this.setExpandedChannelFolderItems(config['expandedChannelFolderItems']);
     }
-    if((this.isElectron && typeof config['autoSaveFlag'] == 'undefined') || config['autoSaveFlag'] == true){
-      this.enableAutoSave();
-    }
+
     if(typeof config['autoSaveInterval'] != 'undefined'){
       this.setAutoSaveInterval(config['autoSaveInterval']);
     }
@@ -523,6 +505,10 @@ getIpfsBootstrapPeers(){
 
     if(typeof config['dolphin'] != 'undefined' && typeof config['dolphin']['channelConfig'] != 'undefined'){
       this.dolphin.setChannelConfig(config['dolphin']['channelConfig']);
+    }
+
+    if((this.isElectron && typeof config['autoSaveFlag'] == 'undefined') || config['autoSaveFlag'] == true){
+      this.enableAutoSave();
     }
 
     console.log("BeeConfig: Import Complete");
