@@ -344,9 +344,12 @@ getIpfsBootstrapPeers(){
                   try{
                       //try to parse config out of local storage
                       this.setStorageLocation('LocalStorage');
-                      let localStorage = JSON.parse(window.localStorage.getItem('user-qcprofile'));
-                      if(localStorage['version'] == "0.9.2" || "0.9.3"){
-                        config = localStorage;
+                      let item = window.localStorage.getItem('user-qcprofile');
+                      if(item !== null){
+                        let localStorage = JSON.parse(item);
+                        if(typeof localStorage == 'object' && ( localStorage['version'] == "0.9.2" || "0.9.3" ) ){
+                          config = localStorage;
+                        }
                       }
 
                   }catch(error){console.log(error);}
@@ -355,30 +358,34 @@ getIpfsBootstrapPeers(){
           this.setStorageLocation('Download');
     }
 
+    if(typeof config === null ){
+      config = {};
+    }
+
     //put config into pubsub
-    if(typeof(config['channelKeyChain']) != 'undefined'){
+    if(typeof config['channelKeyChain'] != 'undefined' ){
       this.dolphin.setChannelKeyChain(config['channelKeyChain']);
     }
-    if(typeof(config['channelParticipantList']) != 'undefined'){
+    if(typeof config['channelParticipantList'] != 'undefined'){
       console.log('Config: Importing ParticipantList ...',config['channelParticipantList']);
       this.dolphin.setChannelParticipantList(config['channelParticipantList']);
     }
     else{
         this.dolphin.setChannelParticipantList(this.config['channelParticipantList']);
     }
-    if(typeof(config['channelNameList']) != 'undefined'){
+    if(typeof config['channelNameList'] != 'undefined'){
       console.log('Config: Importing channelNameList ...',config['channelNameList']);
       this.dolphin.setChannelNameList(config['channelNameList']);
     }
     else{
       this.dolphin.setChannelNameList(this.config['channelNameList']);
     }
-    if(typeof(config['channelFolderList']) != 'undefined'){
+    if(typeof config['channelFolderList'] != 'undefined'){
       console.log('Config: Importing Folder List ...',config['channelFolderList']);
       this.setChannelFolderList(config['channelFolderList']);
     }
 
-    if(typeof(config['favoriteFolderList']) != 'undefined'){
+    if(typeof config['favoriteFolderList'] != 'undefined'){
       console.log('Config: Importing Folder List ...',config['favoriteFolderList']);
       this.setFavoriteFolderList(config['favoriteFolderList']);
     }
