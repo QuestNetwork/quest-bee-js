@@ -31,6 +31,8 @@ export class BeeConfig {
     let uVar;
     this.version = uVar;
     this.isElectron = false;
+    this.isNodeJS = false;
+
     this.configPath = uVar;
     this.configFilePath = uVar;
     this.autoSaveInterval = uVar;
@@ -271,7 +273,7 @@ getIpfsConfig(){
       };
 
       let saveAsDownload = false;
-      if(this.isElectron && !config['export']){
+      if((this.isElectron || this.isNodeJS) && !config['export']){
         this.fs.writeFileSync(this.configFilePath, JSON.stringify(this.config),{encoding:'utf8',flag:'w'})
       }
       else if(config['export'] || this.config.storageLocation == "Download"){
@@ -297,7 +299,7 @@ getIpfsConfig(){
   }
   deleteConfig(){
 
-          if(this.isElectron){
+          if(this.isElectron || this.isNodeJS){
             try{
               this.fs.unlinkSync(this.configFilePath);
             }catch(e){console.log(e);}
@@ -321,7 +323,7 @@ getIpfsConfig(){
     return this.hasConfigFlag;
   }
   hasConfigFile(){
-    if(this.isElectron){
+    if(this.isElectron || this.isNodeJS){
       return this.fs.existsSync(this.configFilePath);
     }
     return false;
@@ -345,10 +347,10 @@ getIpfsConfig(){
        config = JSON.parse(this.fs.readFileSync(this.configFilePath,"utf8"));
       }
     }catch(error){console.log(error);}
-    if(!this.isElectron && typeof config['storageLocation'] != 'undefined'){
+    if(()!this.isElectron || this.isNodeJS) && typeof config['storageLocation'] != 'undefined'){
       this.setStorageLocation(config['storageLocation']);
     }
-    else if(!this.isElectron && this.hasAccessToLocalStorage()){
+    else if((!this.isElectron && !this.isNodeJS) && this.hasAccessToLocalStorage()){
 
                   try{
                       //try to parse config out of local storage
@@ -455,7 +457,7 @@ getIpfsConfig(){
       this.dolphin.setChannelConfig(config['dolphin']['channelConfig']);
     }
 
-    if((this.isElectron && typeof config['autoSaveFlag'] == 'undefined') || config['autoSaveFlag'] == true){
+    if(((this.isElectron || this.isNodeJS)&& typeof config['autoSaveFlag'] == 'undefined') || config['autoSaveFlag'] == true){
       this.enableAutoSave();
     }
 
