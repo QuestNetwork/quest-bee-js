@@ -15,7 +15,8 @@
     },
   "dependencies": {
     "rxjs": "^6.6.2",
-    "uuid": "^8.2.0"
+    "uuid": "^8.2.0",
+    "fs": "0.0.1-security"
   },
   "devDependencies": {
     "ava": "^3.10.1",
