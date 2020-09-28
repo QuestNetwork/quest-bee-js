@@ -541,7 +541,7 @@ export class BeeConfig {
     }
 
     if(typeof config['ipfs'] != 'undefined'){
-      this.setIpfsConfig(config['ipfs']]);
+      this.setIpfsConfig(config['ipfs']);
     }
 
 
