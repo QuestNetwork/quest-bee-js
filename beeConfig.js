@@ -64,6 +64,7 @@ export class BeeConfig {
     this.autoSaveRunning = false;
     this.jsonSwarm = {};
     this.saveLock = false;
+    this.isNodeJS = false;
 
 
   }
@@ -76,13 +77,31 @@ export class BeeConfig {
     this.saveAs = config['dependencies']['saveAs'];
     this.dolphin = config['dependencies']['dolphin'];
 
-    var userAgent = navigator.userAgent.toLowerCase();
-    if (userAgent.indexOf(' electron/') > -1) {
-      this.isElectron = true;
-      this.fs = this.electron.remote.require('fs');
-      this.configPath = this.electron.remote.app.getPath('userData');
-      this.configFilePath = this.configPath + "/user.qcprofile";
+
+
+    if(typeof navigator == 'undefined' && typeof window == 'undefined'){
+      //is nodejs
+        this.isNodeJS = true;
+        this.fs = require('fs');
+        try{
+          this.fs.mkdirSync('config')
+        }
+        catch(e){console.log(e)};
+        this.configPath = 'config';
+        this.configFilePath = this.configPath + "/user.qcprofile";
     }
+    else{
+      //may be electron
+      var userAgent = navigator.userAgent.toLowerCase();
+      if (userAgent.indexOf(' electron/') > -1) {
+        this.isElectron = true;
+        this.fs = this.electron.remote.require('fs');
+        this.configPath = this.electron.remote.app.getPath('userData');
+        this.configFilePath = this.configPath + "/user.qcprofile";
+      }
+      //is browser
+    }
+
 
     this.commitNowSub.subscribe( (value) => {
       this.commitNow();
@@ -422,7 +441,7 @@ getIpfsBootstrapPeers(){
 
       };
 
-      if(this.isElectron && !config['export']){
+      if((this.isElectron  || this.isNodeJS) && !config['export']){
         this.fs.writeFileSync(this.configFilePath, JSON.stringify(this.config),{encoding:'utf8',flag:'w'})
       }
       else{
@@ -436,7 +455,7 @@ getIpfsBootstrapPeers(){
   }
   deleteConfig(){
 
-          if(this.isElectron){
+          if(this.isElectron || this.isNodeJS){
             this.fs.unlinkSync(this.configFilePath);
           }
 
@@ -451,14 +470,14 @@ getIpfsBootstrapPeers(){
     return this.hasConfigFlag;
   }
   hasConfigFile(){
-    if(this.isElectron){
+    if(this.isElectron || this.isNodeJS){
       return this.fs.existsSync(this.configFilePath);
     }
     return false;
   }
   readConfig(config = {}){
     try{
-      if(this.isElectron){
+      if(this.isElectron || this.isNodeJS){
        config = JSON.parse(this.fs.readFileSync(this.configFilePath,"utf8"));
       }
     }catch(error){console.log(error);}
@@ -503,7 +522,7 @@ getIpfsBootstrapPeers(){
     if(typeof config['expandedChannelFolderItems']  !='undefined'){
       this.setExpandedChannelFolderItems(config['expandedChannelFolderItems']);
     }
-    if((this.isElectron && typeof config['autoSaveFlag'] == 'undefined') || config['autoSaveFlag'] == true){
+    if(((this.isElectron || this.isNodeJS) && typeof config['autoSaveFlag'] == 'undefined') || config['autoSaveFlag'] == true){
       this.enableAutoSave();
     }
     if(typeof config['autoSaveInterval'] != 'undefined'){
