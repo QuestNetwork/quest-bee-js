@@ -553,7 +553,7 @@ export class BeeConfig {
     return true;
   }
 
-  setIpfsConfigs(p){
+  setIpfsConfig(p){
     this.config['ipfs'] = p;
     // this.commitNow();
   }
