@@ -69,13 +69,22 @@ export class BeeConfig {
     this.saveAs = config['dependencies']['saveAs'];
     this.dolphin = config['dependencies']['dolphin'];
 
-    var userAgent = navigator.userAgent.toLowerCase();
-    if (userAgent.indexOf(' electron/') > -1) {
-      this.isElectron = true;
-      this.fs = this.electron.remote.require('fs');
-      this.configPath = this.electron.remote.app.getPath('userData');
+    if(typeof navigator != 'undefined'){
+      var userAgent = navigator.userAgent.toLowerCase();
+      if (userAgent.indexOf(' electron/') > -1) {
+        this.isElectron = true;
+        this.fs = this.electron.remote.require('fs');
+        this.configPath = this.electron.remote.app.getPath('userData');
+        this.configFilePath = this.configPath + "/user.qcprofile";
+      }
+    }
+    else if(typeof window == 'undefined'){
+      this.isNodeJS = true;
+      this.fs = this.require('fs');
+      this.configPath = 'config';
       this.configFilePath = this.configPath + "/user.qcprofile";
     }
+
 
     this.commitNowSub.subscribe( (value) => {
       this.commitNow();
@@ -331,7 +340,7 @@ getIpfsConfig(){
   }
   readConfig(config = {}){
     try{
-      if(this.isElectron){
+      if(this.isElectron || this.isNodeJS){
         this.setStorageLocation('ConfigFile');
        config = JSON.parse(this.fs.readFileSync(this.configFilePath,"utf8"));
       }
