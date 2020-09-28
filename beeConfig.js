@@ -347,7 +347,7 @@ getIpfsConfig(){
        config = JSON.parse(this.fs.readFileSync(this.configFilePath,"utf8"));
       }
     }catch(error){console.log(error);}
-    if(()!this.isElectron || this.isNodeJS) && typeof config['storageLocation'] != 'undefined'){
+    if((!this.isElectron && !this.isNodeJS) && typeof config['storageLocation'] != 'undefined'){
       this.setStorageLocation(config['storageLocation']);
     }
     else if((!this.isElectron && !this.isNodeJS) && this.hasAccessToLocalStorage()){
