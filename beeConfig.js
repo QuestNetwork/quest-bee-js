@@ -62,17 +62,19 @@ export class BeeConfig {
     this.parseAndImportParentIdCache = "";
     this.saveLockStatusSub = new Subject();
     this.autoSaveRunning = false;
-    this.jsonSwarm = {};
+
+    //ipfs
+    this.jsonIpfsConfig = {};
+
     this.saveLock = false;
     this.isNodeJS = false;
-
-
   }
 
   async start(config){
 
     this.version = config['version'];
-    this.jsonSwarm = config['ipfs']['swarm'];
+    this.jsonIpfsConfig = config['ipfs'];
+
     this.electron = config['dependencies']['electronService'];
     this.saveAs = config['dependencies']['saveAs'];
     this.dolphin = config['dependencies']['dolphin'];
@@ -160,39 +162,41 @@ export class BeeConfig {
   disableAutoSave(){
     this['autoSaveFlag'] = false;
     this.commitNow();
-  }
-setAutoSaveInterval(value){
-  this.config['autoSaveInterval'] = value;
-  this.commit();
-}
-getAutoSaveInterval(value){
-  return this.config['autoSaveInterval']
-}
-getIpfsBootstrapPeers(){
-
-  if(this.config['ipfsBootstrapPeers'] != 'undefined'){
-    return this.config['ipfsBootstrapPeers'];
-  }
-  else{
-    return this.jsonSwarm;
-  }
-}
-    async autoSave(){
-      console.log('Bee: Running autoSave...');
-          if(this.config['autoSaveFlag'] != 'undefined' && this.config['autoSaveFlag']  && this.commitChanges){
-            this.commitNow();
-            this.commitChanges = false;
-          }
-          if(this.config['autoSaveFlag'] != 'undefined' && this.config['autoSaveFlag']){
-            await this.delay(this.config['autoSaveInterval']);
-            this.autoSaveRunning = 0;
-            this.autoSave();
-          }
     }
+  setAutoSaveInterval(value){
+    this.config['autoSaveInterval'] = value;
+    this.commit();
+  }
+  getAutoSaveInterval(value){
+    return this.config['autoSaveInterval']
+  }
+  getIpfsConfig(){
 
-    isInArray(value, array) {
+    if(this.config['ipfs'] != 'undefined'){
+      return this.config['ipfs'];
+    }
+    else{
+      return this.jsonIpfsConfig;
+    }
+  }
+
+  async autoSave(){
+    console.log('Bee: Running autoSave...');
+        if(this.config['autoSaveFlag'] != 'undefined' && this.config['autoSaveFlag']  && this.commitChanges){
+          this.commitNow();
+          this.commitChanges = false;
+        }
+        if(this.config['autoSaveFlag'] != 'undefined' && this.config['autoSaveFlag']){
+          await this.delay(this.config['autoSaveInterval']);
+          this.autoSaveRunning = 0;
+          this.autoSave();
+        }
+  }
+
+  isInArray(value, array) {
      return array.indexOf(value) > -1;
-   }
+  }
+
    delay(t, val = "") {
       return new Promise(function(resolve) {
           setTimeout(function() {
@@ -536,9 +540,10 @@ getIpfsBootstrapPeers(){
       this.setSaveLock(config['saveLock']);
     }
 
-    if(typeof config['ipfsBootstrapPeers'] != 'undefined'){
-      this.setIpfsBootstrapPeers(config['ipfsBootstrapPeers']);
+    if(typeof config['ipfs'] != 'undefined'){
+      this.setIpfsConfig(config['ipfs']]);
     }
+
 
     if(typeof config['dolphin'] != 'undefined' && typeof config['dolphin']['channelConfig'] != 'undefined'){
       this.dolphin.setChannelConfig(config['dolphin']['channelConfig']);
@@ -548,8 +553,8 @@ getIpfsBootstrapPeers(){
     return true;
   }
 
-  setIpfsBootstrapPeers(p){
-    this.config['ipfsBootstrapPeers'] = p;
+  setIpfsConfigs(p){
+    this.config['ipfs'] = p;
     // this.commitNow();
   }
 
