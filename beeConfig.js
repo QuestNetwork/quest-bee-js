@@ -72,13 +72,13 @@ export class BeeConfig {
     this.saveAs = config['dependencies']['saveAs'];
     this.dolphin = config['dependencies']['dolphin'];
 
-    if (QuestUtilities.engine.detect() == 'electron') {
+    if (Utilities.engine.detect() == 'electron') {
       this.isElectron = true;
       this.fs = this.electron.remote.require('fs');
       this.configPath = this.electron.remote.app.getPath('userData');
       this.configFilePath = this.configPath + "/user.qcprofile";
     }
-    else if (QuestUtilities.engine.detect() == 'node') {
+    else if (Utilities.engine.detect() == 'node') {
       this.isNodeJS = true;
       this.fs = require('fs');
       this.configPath = 'config';
@@ -171,13 +171,7 @@ getIpfsConfig(){
         }
   }
 
-  isInArray(value, array) {
-    if(typeof array['push'] == 'undefined'){
-      return false;
-    }
 
-   return array.indexOf(value) > -1;
- }
  delay(t, val = "") {
     return new Promise(function(resolve) {
         setTimeout(function() {
@@ -521,7 +515,7 @@ getIpfsConfig(){
 
   inComb(path,item){
     let a = this.getComb(path);
-    let isInComb = this.isInArray(item, a);
+    let isInComb = Utilities.inArray(a,item);
     return isInComb;
   }
 
