@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "rxjs": "^6.6.2",
+    "quest-utilities-js": "../quest-utilities-js",
     "uuid": "^8.2.0",
     "fs": "0.0.1-security"
   },

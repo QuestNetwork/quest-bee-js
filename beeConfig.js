@@ -1,5 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Subject } from 'rxjs';
+import { @quest}
+import { Utilities } from '@questnetwork/quest-utilities-js'
 
 export class BeeConfig {
 
@@ -71,22 +73,18 @@ export class BeeConfig {
     this.saveAs = config['dependencies']['saveAs'];
     this.dolphin = config['dependencies']['dolphin'];
 
-    if(typeof navigator != 'undefined'){
-      var userAgent = navigator.userAgent.toLowerCase();
-      if (userAgent.indexOf(' electron/') > -1) {
-        this.isElectron = true;
-        this.fs = this.electron.remote.require('fs');
-        this.configPath = this.electron.remote.app.getPath('userData');
-        this.configFilePath = this.configPath + "/user.qcprofile";
-      }
+    if (QuestUtilities.engine.detect() == 'electron') {
+      this.isElectron = true;
+      this.fs = this.electron.remote.require('fs');
+      this.configPath = this.electron.remote.app.getPath('userData');
+      this.configFilePath = this.configPath + "/user.qcprofile";
     }
-    else if(typeof window == 'undefined'){
+    else if (QuestUtilities.engine.detect() == 'node') {
       this.isNodeJS = true;
       this.fs = require('fs');
       this.configPath = 'config';
       this.configFilePath = this.configPath + "/user.qcprofile";
     }
-
 
     this.commitNowSub.subscribe( (value) => {
       this.commitNow();
