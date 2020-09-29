@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Subject } from 'rxjs';
-import { @quest}
 import { Utilities } from '@questnetwork/quest-utilities-js'
 
 export class BeeConfig {
