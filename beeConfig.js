@@ -82,7 +82,7 @@ export class BeeConfig {
     }
     else if(typeof window == 'undefined'){
       this.isNodeJS = true;
-      this.fs = this.require('fs');
+      this.fs = require('fs');
       this.configPath = 'config';
       this.configFilePath = this.configPath + "/user.qcprofile";
     }
