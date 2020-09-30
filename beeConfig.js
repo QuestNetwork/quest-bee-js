@@ -572,7 +572,17 @@ getIpfsConfig(){
     this.config['comb'][path] = newComb;
     this.commitNow();
   }
-
+  searchCombs(searchPath){
+    let all = this.config['comb'];
+    let paths = Object.keys(all);
+    let results = [];
+    for(let path of paths){
+      if(path.indexOf(searchPath) > -1){
+        results.push(this.getComb(path));
+      }
+    }
+    return results;
+  }
 
 
 

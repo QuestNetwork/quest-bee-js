@@ -38,5 +38,9 @@ export class HoneyComb {
     this.beeConfig.removeFromComb(path, search);
   }
 
+  search(path){
+    return this.beeConfig.searchCombs(path);
+  }
+
 
 }
