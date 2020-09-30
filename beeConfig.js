@@ -577,7 +577,7 @@ getIpfsConfig(){
     let paths = Object.keys(all);
     let results = [];
     for(let path of paths){
-      if(path.indexOf(searchPath) > -1){
+      if(path.indexOf(searchPath) > -1 && path.indexOf(searchPath) < 2 ){
         results.push(this.getComb(path));
       }
     }
