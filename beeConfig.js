@@ -211,7 +211,9 @@ getIpfsConfig(){
           profile['sig'] = socialProfiles[pubKey]['sig'];
         }
         this.setComb('/social/profile/'+ pubKey,profile, { commit: false });
-        this.setComb('/social/timeline/'+ pubKey,socialProfiles[pubKey]['timeline'], { commit: false });
+        if(socialProfiles[pubKey]['timeline'] != 'undefined' && socialProfiles[pubKey]['timeline'].length > 0){
+          this.setComb('/social/timeline/'+ pubKey,socialProfiles[pubKey]['timeline'], { commit: false });
+        }
 
       }
     }
@@ -504,14 +506,20 @@ getIpfsConfig(){
   }
 
   addToComb(path,item,  config = { commit: true }){
+    console.log( this.config['comb'][path]);
+
     if(typeof this.config['comb'] == 'undefined'){
        this.config['comb'] = {};
     }
-    else if(typeof this.config['comb'][path] == 'undefined'){
+
+    if(typeof this.config['comb'][path] == 'undefined'){
        this.config['comb'][path] = [];
     }
 
     this.config['comb'][path].push(item);
+
+    console.log(this.config['comb'][path]);
+
     if(config['commit']){
       this.commitNow();
     }
