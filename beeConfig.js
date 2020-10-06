@@ -206,10 +206,13 @@ getIpfsConfig(){
         profile['fullName'] = socialProfiles[pubKey]['fullName'];
         profile['private'] = socialProfiles[pubKey]['private'];
         profile['about'] = socialProfiles[pubKey]['about'];
+
         if(socialProfiles[pubKey]['sig'] != 'undefined'){
           profile['sig'] = socialProfiles[pubKey]['sig'];
         }
         this.setComb('/social/profile/'+ pubKey,profile, { commit: false });
+        this.setComb('/social/timeline/'+ pubKey,socialProfiles[pubKey]['timeline'], { commit: false });
+
       }
     }
 
