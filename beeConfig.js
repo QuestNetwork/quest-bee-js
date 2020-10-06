@@ -274,6 +274,7 @@ getIpfsConfig(){
         try{
           window.localStorage.setItem('user-qcprofile', JSON.stringify(this.config));
         }catch(e){
+          console.log(e);
           saveAsDownload = true;
         }
       }
