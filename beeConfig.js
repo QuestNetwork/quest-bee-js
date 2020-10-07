@@ -211,7 +211,7 @@ getIpfsConfig(){
           profile['sig'] = socialProfiles[pubKey]['sig'];
         }
         this.setComb('/social/profile/'+ pubKey,profile, { commit: false });
-        if(socialProfiles[pubKey]['timeline'] != 'undefined' && socialProfiles[pubKey]['timeline'].length > 0){
+        if(typeof socialProfiles[pubKey]['timeline'] != 'undefined' && socialProfiles[pubKey]['timeline'].length > 0){
           this.setComb('/social/timeline/'+ pubKey,socialProfiles[pubKey]['timeline'], { commit: false });
         }
 
