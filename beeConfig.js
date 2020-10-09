@@ -22,7 +22,8 @@ export class BeeConfig {
       sideBarVisible: { left: true, right: false},
       inviteCodes: {},
       incomingFavoriteRequests: [],
-      saveLock: false
+      saveLock: false,
+      dev: false
     };
 
     this.flatChannelFolderIdList = {};
@@ -66,11 +67,14 @@ export class BeeConfig {
 
   async start(config){
 
+    this.dev = config['dev'];
+
     this.version = config['version'];
     this.jsonIpfsConfig = config['ipfs'];
     this.electron = config['dependencies']['electronService'];
     this.saveAs = config['dependencies']['saveAs'];
     this.dolphin = config['dependencies']['dolphin'];
+
 
     if (Utilities.engine.detect() == 'electron') {
       this.isElectron = true;
@@ -974,7 +978,7 @@ getIpfsConfig(){
   }
 
   setExpandedChannelFolderItems(exp){
-    console.log('setting',exp);
+    this.dev && console.log('setting',exp);
     this.config['expandedChannelFolderItems'] = exp;
   }
   getExpandedChannelFolderItems(){
@@ -1125,7 +1129,7 @@ getIpfsConfig(){
   }
 
   setExpandedFavoriteFolderItems(exp){
-    console.log('setting',exp);
+    this.div && console.log('setting',exp);
     this.config['expandedFavoriteFolderItems'] = exp;
   }
   getExpandedFavoriteFolderItems(){
