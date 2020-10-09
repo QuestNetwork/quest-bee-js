@@ -211,7 +211,7 @@ getIpfsConfig(){
           profile['sig'] = socialProfiles[pubKey]['sig'];
         }
         this.setComb('/social/profile/'+ pubKey,profile, { commit: false });
-        if(typeof socialProfiles[pubKey]['timeline'] != 'undefined' && socialProfiles[pubKey]['timeline'].length > 0){
+        if(typeof socialProfiles[pubKey]['timeline'] != 'undefined' && typeof(socialProfiles[pubKey]['timeline']['indexOf']) != 'undefined' &&  socialProfiles[pubKey]['timeline'].length > 0 && !this.isMyProfile(pubKey)){
           this.setComb('/social/timeline/'+ pubKey,socialProfiles[pubKey]['timeline'], { commit: false });
         }
 
@@ -226,6 +226,13 @@ getIpfsConfig(){
     }
     this.setComb('/social/links',combLinks, { commit: false });
     //END  merge social stuff until dependencies fixed
+  }
+
+  isMyProfile(key){
+    if(key == 'NoProfileSelected'){
+      return true;
+    }
+    return this.inComb("/social/myprofiles",key);
   }
 
   commitNow(config = { export: false }){
