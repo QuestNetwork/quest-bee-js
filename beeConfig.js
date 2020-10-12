@@ -215,7 +215,7 @@ getIpfsConfig(){
           profile['sig'] = socialProfiles[pubKey]['sig'];
         }
         this.setComb('/social/profile/'+ pubKey,profile, { commit: false });
-        if(typeof socialProfiles[pubKey]['timeline'] != 'undefined' && typeof(socialProfiles[pubKey]['timeline']['indexOf']) != 'undefined' &&  socialProfiles[pubKey]['timeline'].length > 0 && !this.isMyProfile(pubKey)){
+        if(typeof socialProfiles[pubKey]['timeline'] != 'undefined' && typeof(socialProfiles[pubKey]['timeline']['qHash']) != 'undefined' && typeof(socialProfiles[pubKey]['timeline']['whistle']) != 'undefined' && !this.isMyProfile(pubKey)){
           this.setComb('/social/timeline/'+ pubKey,socialProfiles[pubKey]['timeline'], { commit: false });
         }
 
@@ -241,7 +241,7 @@ getIpfsConfig(){
 
   commitNow(config = { export: false }){
 
-    console.log( this.getSaveLock());
+    this.dev && console.log( this.getSaveLock());
 
     if(!config['export'] && this.getSaveLock()){
       return true;
@@ -517,7 +517,7 @@ getIpfsConfig(){
   }
 
   addToComb(path,item,  config = { commit: true }){
-    console.log( this.config['comb'][path]);
+    this.dev && console.log( this.config['comb'][path]);
 
     if(typeof this.config['comb'] == 'undefined'){
        this.config['comb'] = {};
@@ -529,7 +529,7 @@ getIpfsConfig(){
 
     this.config['comb'][path].push(item);
 
-    console.log(this.config['comb'][path]);
+    this.dev && console.log(this.config['comb'][path]);
 
     if(config['commit']){
       this.commitNow();
@@ -553,7 +553,7 @@ getIpfsConfig(){
     }
 
     if(path != '/'){
-      console.log('setting nested comb');
+      this.dev && console.log('setting nested comb');
       this.config['comb'][path] = comb;
     }
     if(config['commit']){
@@ -595,12 +595,12 @@ getIpfsConfig(){
     this.config['comb'][path] = newComb;
     this.commitNow();
   }
-  searchCombs(searchPath){
+  searchCombs(searchPath, ignore = ""){
     let all = this.config['comb'];
     let paths = Object.keys(all);
     let results = [];
     for(let path of paths){
-      if(path.indexOf(searchPath) > -1 && path.indexOf(searchPath) < 2 ){
+      if(path.indexOf(searchPath) > -1 && path.indexOf(searchPath) < 2  ){
         results.push(this.getComb(path));
       }
     }

@@ -38,8 +38,8 @@ export class HoneyComb {
     this.beeConfig.removeFromComb(path, search);
   }
 
-  search(path){
-    return this.beeConfig.searchCombs(path);
+  search(path, ignore = ""){
+    return this.beeConfig.searchCombs(path, ignore)
   }
 
 
