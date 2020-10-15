@@ -1,6 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
 import { Subject } from 'rxjs';
 import { Utilities } from '@questnetwork/quest-utilities-js'
+import { NativeCrypto } from "@questnetwork/quest-crypto-js";
+
 
 export class BeeConfig {
 
@@ -9,7 +11,7 @@ export class BeeConfig {
   constructor() {
 
     this.config = {
-      version: "0.9.3",
+      version: "0.9.4",
       appId: 'qDesk',
       channelKeyChain:   {},
       channelParticipantList: {},
@@ -34,7 +36,7 @@ export class BeeConfig {
     this.version = uVar;
     this.isElectron = false;
     this.isNodeJS = false;
-
+    this.crypto = new NativeCrypto();
     this.configPath = uVar;
     this.configFilePath = uVar;
     this.autoSaveInterval = uVar;
@@ -66,7 +68,7 @@ export class BeeConfig {
   }
 
   async start(config){
-
+    this.accPwd = "";
     this.dev = config['dev'];
 
     this.version = config['version'];
@@ -93,6 +95,29 @@ export class BeeConfig {
       this.commitNow();
     });
 
+    return true;
+  }
+
+  hasPassword(){
+    if(typeof this.getComb('/settings/account/passwordSet') == 'boolean' && this.getComb('/settings/account/passwordSet') == true){
+      return true;
+    }
+    return false;
+  }
+
+  async setPwd(password){
+      this.accPwd = password;
+  }
+
+  async setPassword(oldPassword,newPassword){
+    if(this.hasPassword()){
+      //verify old password
+      if(oldPassword != this.accPwd){
+        throw('pwd');
+      }
+    }
+    this.accPwd = newPassword;
+    this.setComb('/settings/account/passwordSet', true);
     return true;
   }
 
@@ -279,24 +304,45 @@ getIpfsConfig(){
 
       };
 
+      let unencrytpedObject;
+
+      if(typeof this.config['appId'] == 'undefined'){
+        throw('bad config');
+      }
+      else{
+         unencrytpedObject = this.config;
+      }
+
+      let encryptedHex = "";
+      if(!this.hasPassword){
+        let {secret, aesEncryptedB64 } = this.crypto.aes.encrypt(unencrytpedObject);
+        encryptedHex = Buffer.from(aesEncryptedB64,'base64').toString('hex');
+        this.accPwd = secret;
+      }
+      else{
+        let {secret, aesEncryptedB64 } = this.crypto.aes.encrypt(unencrytpedObject, this.accPwd);
+        encryptedHex = Buffer.from(aesEncryptedB64,'base64').toString('hex');
+      }
+
       let saveAsDownload = false;
       if((this.isElectron || this.isNodeJS) && !config['export']){
-        this.fs.writeFileSync(this.configFilePath, JSON.stringify(this.config),{encoding:'utf8',flag:'w'})
+        console.log('saving...')
+        this.fs.writeFileSync(this.configFilePath, encryptedHex,{encoding:'utf8',flag:'w'})
       }
       else if(config['export'] || this.config.storageLocation == "Download"){
         saveAsDownload = true;
       }
       else{
         try{
-          window.localStorage.setItem('user-qcprofile', JSON.stringify(this.config));
+          window.localStorage.setItem('user-qcprofile', encryptedHex);
         }catch(e){
-          console.log(e);
           saveAsDownload = true;
+          console.log(e);
         }
       }
 
       if(saveAsDownload){
-        let userProfileBlob = new Blob([ JSON.stringify(this.config)], { type: 'text/plain;charset=utf-8' });
+        let userProfileBlob = new Blob([ encryptedHex ], { type: 'text/plain;charset=utf-8' });
         this.saveAs(userProfileBlob, "profile.qcprofile");
       }
 
@@ -316,6 +362,8 @@ getIpfsConfig(){
           try{
             window.localStorage.removeItem('user-qcprofile');
           }catch(e){console.log(e);}
+
+          this.accPwd = "";
 
   }
 
@@ -349,37 +397,106 @@ getIpfsConfig(){
     }
   }
   readConfig(config = {}){
-    try{
-      if(this.isElectron || this.isNodeJS){
-        this.setStorageLocation('ConfigFile');
-       config = JSON.parse(this.fs.readFileSync(this.configFilePath,"utf8"));
+    console.log('file?:',config);
+    if(typeof config == 'string'){
+      //From Dropped File
+
+      try{
+        let encryptedHex = config;
+        // console.log('file:',encryptedHex);
+        // console.log(this.accPwd);
+        config = this.crypto.aes.decryptHex(encryptedHex,this.accPwd);
+        if(typeof config == 'string'){
+          // console.log('file pwd wrong');
+          throw('pwd');
+        }
+      }catch(e){
+        console.log(e);
+        throw('pwd');
       }
-    }catch(error){console.log(error);}
+
+    }
+    else if(this.isElectron || this.isNodeJS){
+      //From Config File
+
+      this.setStorageLocation('ConfigFile');
+
+
+          let encryptedHex = "";
+          try{
+               encryptedHex = this.fs.readFileSync(this.configFilePath,"utf8");
+               // console.log(encryptedHex);
+          }catch(e){console.log(e)}
+
+          if(encryptedHex.length > 0){
+            try{
+              // console.log('decrypting config...');
+              let dec = this.crypto.aes.decryptHex(encryptedHex,this.accPwd);
+
+              if(typeof dec == 'string'){
+                throw('pwd');
+              }
+              else if(typeof dec == 'object' && typeof dec['appId'] != 'undefined'){
+                config = dec;
+              }
+
+            }
+            catch(e){
+              console.log(e);
+              throw('pwd');
+            }
+          }
+
+
+
+    }
+
     if((!this.isElectron && !this.isNodeJS) && typeof config['storageLocation'] != 'undefined'){
-      this.setStorageLocation(config['storageLocation']);
+          this.setStorageLocation(config['storageLocation']);
     }
     else if((!this.isElectron && !this.isNodeJS) && this.hasAccessToLocalStorage()){
+      //From Browser Storage
 
                   try{
                       //try to parse config out of local storage
                       this.setStorageLocation('LocalStorage');
-                      let item = window.localStorage.getItem('user-qcprofile');
-                      if(item !== null){
-                        let localStorage = JSON.parse(item);
-                        if(typeof localStorage == 'object' && ( localStorage['version'] == "0.9.2" || "0.9.3" ) ){
-                          config = localStorage;
+                      let encryptedHex = window.localStorage.getItem('user-qcprofile');
+                      if(encryptedHex !== null){
+                        try{
+                          // console.log(this.accPwd);
+                          // console.log(encryptedHex);
+                          console.log(this.crypto.aes.decryptHex(encryptedHex,this.accPwd))
+                          let localStorage = this.crypto.aes.decryptHex(encryptedHex,this.accPwd);
+                          if(typeof localStorage == 'string'){
+                            throw('pwd');
+                          }
+                          console.log(localStorage);
+                          if(typeof localStorage == 'object' && ( localStorage['version'] ==  "0.9.3" || "0.9.4" ) ){
+                            config = localStorage;
+                          }
+                        }catch(e){
+                          console.log(e);
+                          throw('bad password');
                         }
                       }
 
-                  }catch(error){console.log(error);}
+                  }catch(e){
+                    if(e == 'bad password'){
+                      throw('pwd');
+                    }
+                    console.log(e);
+                  }
     }
     else{
           this.setStorageLocation('Download');
     }
 
+
     if(typeof config === null ){
       config = {};
     }
+
+
 
     //put config into pubsub
     if(typeof config['channelKeyChain'] != 'undefined' ){
