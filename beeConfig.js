@@ -3,6 +3,7 @@ import { Subject } from 'rxjs';
 import { Utilities } from '@questnetwork/quest-utilities-js'
 import { NativeCrypto } from "@questnetwork/quest-crypto-js";
 
+import { ElectronService } from 'ngx-electron';
 
 export class BeeConfig {
 
@@ -41,7 +42,7 @@ export class BeeConfig {
     this.configFilePath = uVar;
     this.autoSaveInterval = uVar;
     this.fs = uVar;
-    this.electron = uVar;
+    this.electron = new ElectronService();
     this.dolphin = uVar;
     this.commitChanges = false;
     this.sideBarVisibleSub = new Subject();
@@ -64,20 +65,6 @@ export class BeeConfig {
     this.favoriteFolderListSub = new Subject();
 
 
-
-  }
-
-  async start(config){
-    this.accPwd = "";
-    this.dev = config['dev'];
-
-    this.version = config['version'];
-    this.jsonIpfsConfig = config['ipfs'];
-    this.electron = config['dependencies']['electronService'];
-    this.saveAs = config['dependencies']['saveAs'];
-    this.dolphin = config['dependencies']['dolphin'];
-
-
     if (Utilities.engine.detect() == 'electron') {
       this.isElectron = true;
       this.fs = this.electron.remote.require('fs');
@@ -90,6 +77,20 @@ export class BeeConfig {
       this.configPath = 'config';
       this.configFilePath = this.configPath + "/user.qcprofile";
     }
+
+  }
+
+  async start(config){
+    this.accPwd = "";
+    this.dev = config['dev'];
+
+    this.version = config['version'];
+    this.jsonIpfsConfig = config['ipfs'];
+    this.saveAs = config['dependencies']['saveAs'];
+    this.dolphin = config['dependencies']['dolphin'];
+
+
+
 
     this.commitNowSub.subscribe( (value) => {
       this.commitNow();
@@ -118,6 +119,7 @@ export class BeeConfig {
     }
     this.accPwd = newPassword;
     this.setComb('/settings/account/passwordSet', true);
+    this.commitNow();
     return true;
   }
 
@@ -126,7 +128,7 @@ export class BeeConfig {
       return false
     }
 
-    console.log('BeeConfig: Setting channel',value);
+    // console.log('BeeConfig: Setting channel',value);
     this.config['selectedChannel'] = value;
 
   }
@@ -326,7 +328,7 @@ getIpfsConfig(){
 
       let saveAsDownload = false;
       if((this.isElectron || this.isNodeJS) && !config['export']){
-        console.log('saving...')
+        // console.log('saving...')
         this.fs.writeFileSync(this.configFilePath, encryptedHex,{encoding:'utf8',flag:'w'})
       }
       else if(config['export'] || this.config.storageLocation == "Download"){
@@ -379,6 +381,8 @@ getIpfsConfig(){
     return this.hasConfigFlag;
   }
   hasConfigFile(){
+    // console.log(this.isElectron);
+    // console.log(this.configFilePath);
     if(this.isElectron || this.isNodeJS){
       return this.fs.existsSync(this.configFilePath);
     }
@@ -397,7 +401,12 @@ getIpfsConfig(){
     }
   }
   readConfig(config = {}){
-    console.log('file?:',config);
+    // console.log('file?:',config);
+
+    if((!this.isElectron && !this.isNodeJS) && typeof config['storageLocation'] != 'undefined'){
+          this.setStorageLocation(config['storageLocation']);
+    }
+
     if(typeof config == 'string'){
       //From Dropped File
 
@@ -450,10 +459,6 @@ getIpfsConfig(){
 
 
     }
-
-    if((!this.isElectron && !this.isNodeJS) && typeof config['storageLocation'] != 'undefined'){
-          this.setStorageLocation(config['storageLocation']);
-    }
     else if((!this.isElectron && !this.isNodeJS) && this.hasAccessToLocalStorage()){
       //From Browser Storage
 
@@ -465,12 +470,12 @@ getIpfsConfig(){
                         try{
                           // console.log(this.accPwd);
                           // console.log(encryptedHex);
-                          console.log(this.crypto.aes.decryptHex(encryptedHex,this.accPwd))
+                          // console.log(this.crypto.aes.decryptHex(encryptedHex,this.accPwd))
                           let localStorage = this.crypto.aes.decryptHex(encryptedHex,this.accPwd);
                           if(typeof localStorage == 'string'){
                             throw('pwd');
                           }
-                          console.log(localStorage);
+                          // console.log(localStorage);
                           if(typeof localStorage == 'object' && ( localStorage['version'] ==  "0.9.3" || "0.9.4" ) ){
                             config = localStorage;
                           }
@@ -700,7 +705,7 @@ getIpfsConfig(){
       for(let i=0;i<searchKeys.length;i++){
         if(comb[iC][searchKeys[i]] == search[searchKeys[i]]){
           combItemStays = false;
-          console.log('found');
+          // console.log('found');
         }
       }
 
@@ -896,23 +901,23 @@ getIpfsConfig(){
       return chIDL;
     }
     checkIfFolderIdChannelsRec(chFL = [],id = "0"){
-      console.log(chFL);
+      // console.log(chFL);
       let foundChannels = false;
       for(let i=0;i<chFL.length;i++){
-        console.log("BeeConfig: Looking For Root Folder...");
-        console.log(id);
-        console.log(chFL[i]['id']);
-        console.log(chFL[i]['data']['name']);
+        // console.log("BeeConfig: Looking For Root Folder...");
+        // console.log(id);
+        // console.log(chFL[i]['id']);
+        // console.log(chFL[i]['data']['name']);
 
         if(typeof chFL[i]['id'] !='undefined' && chFL[i]['id'] == id && typeof chFL[i]['children'] != 'undefined' && chFL[i]['children'].length > 0){
                 //FOUND ROOT
               //we found the folder id, now check subfolders for channels
-              console.log('BeeConfig: Found Root Folder');
+              // console.log('BeeConfig: Found Root Folder');
               let childHasChannels = false;
-              console.log('BeeConfig: Checking Root Folder For Channels');
+              // console.log('BeeConfig: Checking Root Folder For Channels');
               for(let i2 = 0;i2<chFL[i]['children'].length;i2++){
-                  console.log('BeeConfig: Testing Root....');
-                  console.log(chFL[i]['children'][i2]['data']['name']);
+                  // console.log('BeeConfig: Testing Root....');
+                  // console.log(chFL[i]['children'][i2]['data']['name']);
                   if((typeof chFL[i]['children'][i2]['id'] == 'undefined' && chFL[i]['children'][i2]['data']['name'].indexOf('-----') > -1) || chFL[i]['children'][i2]['id'].indexOf('-----') > -1 ){
                     return true;
                   }
@@ -932,11 +937,11 @@ getIpfsConfig(){
       return false;
     }
     checkIfFolderIdChannelsChildrenRec( chFL){
-      console.log('BeeConfig: Checking Sub Folder For Channels');
+      // console.log('BeeConfig: Checking Sub Folder For Channels');
       for(let i =0;i<chFL.length;i++){
         for(let i2 = 0;i2<chFL.length;i2++){
-            console.log('BeeConfig: Testing Sub....');
-            console.log(chFL[i]['data']['name']);
+            // console.log('BeeConfig: Testing Sub....');
+            // console.log(chFL[i]['data']['name']);
             if((typeof chFL[i]['id'] != 'undefined' && chFL[i]['id'].indexOf('-----') > -1 )|| chFL[i]['data']['name'].indexOf('-----') > -1){
               return true;
             }
@@ -1069,9 +1074,9 @@ getIpfsConfig(){
         return this.flatChannelFolderIdList[id];
       }
 
-      console.log('id:',id);
+      // console.log('id:',id);
       let testName = this.getFolderNameFromIdRec(this.getChannelFolderList(),id);
-      console.log('name:',testName);
+      // console.log('name:',testName);
 
       if(testName != "NameNotFound"){
         this.flatChannelFolderIdList[id] = testName;
@@ -1086,7 +1091,7 @@ getIpfsConfig(){
   }
 
   checkIfFolderIdChannels(id){
-    console.log("BeeConfig: Testing Children For Channels...");
+    // console.log("BeeConfig: Testing Children For Channels...");
     let chFL = this.getChannelFolderList();
     if(typeof chFL == 'undefined'){
       throw('no folder list');
@@ -1219,10 +1224,10 @@ getIpfsConfig(){
         return this.flatFavoriteFolderIdList[id];
       }
 
-      console.log('id:',id);
-      console.log('folderlist:',this.getFavoriteFolderList());
+      // console.log('id:',id);
+      // console.log('folderlist:',this.getFavoriteFolderList());
       let testName = this.getFolderNameFromIdRec(this.getFavoriteFolderList(),id);
-      console.log('name:',testName);
+      // console.log('name:',testName);
 
       if(testName != "NameNotFound"){
         this.flatFavoriteFolderIdList[id] = testName;
@@ -1237,7 +1242,7 @@ getIpfsConfig(){
   }
 
   checkIfFavoriteFolderIdChannels(id){
-    console.log("BeeConfig: Testing Children For Favorites...");
+    // console.log("BeeConfig: Testing Children For Favorites...");
     let chFL = this.getFavoriteFolderList();
     if(typeof chFL == 'undefined'){
       throw('no folder list');
