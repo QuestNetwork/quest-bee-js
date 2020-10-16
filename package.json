@@ -17,7 +17,7 @@
     "rxjs": "6.6.3",
     "@questnetwork/quest-utilities-js": "../quest-utilities-js",
     "@questnetwork/quest-crypto-js": "../quest-crypto-js",
-    "uuid": "^8.2.0",
+    "uuid": "8.3.0",
     "ngx-electron": "^2.2.0",
     "fs": "0.0.1-security"
   },
