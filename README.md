@@ -42,6 +42,13 @@ Adds a HoneyComb object to an array of HoneyComb objects.
 <os>.bee.comb.set('/my/path/to/the/object',content);
 ```
 
+#### bee.comb.search(path)
+
+Searches for HoneyComb objects and returns a flat array of HoneyComb objects.
+
+```javascript
+let results = <os>.bee.comb.search('/my/path');
+```
 ## Roadmap
 
 **0.9.6**
