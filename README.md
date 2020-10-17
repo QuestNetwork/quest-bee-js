@@ -43,6 +43,7 @@ Adds a HoneyComb object to an array of HoneyComb objects.
 ```
 
 #### bee.comb.search(path)
+[![Bee](https://img.shields.io/badge/process-Bee-yellow)](https://github.com/QuestNetwork/quest-bee-js)
 
 Searches for HoneyComb objects and returns a flat array of HoneyComb objects.
 
