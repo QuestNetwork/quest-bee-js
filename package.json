@@ -15,8 +15,8 @@
   },
   "dependencies": {
     "rxjs": "6.5.5",
-    "@questnetwork/quest-utilities-js": "../quest-utilities-js",
-    "@questnetwork/quest-crypto-js": "../quest-crypto-js",
+    "@questnetwork/quest-utilities-js": "^0.9.4",
+    "@questnetwork/quest-crypto-js": "^0.9.4",
     "uuid": "8.3.0",
     "ngx-electron": "^2.2.0",
     "fs": "0.0.1-security"
