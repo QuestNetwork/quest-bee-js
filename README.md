@@ -49,15 +49,17 @@ Searches for HoneyComb objects and returns a flat array of HoneyComb objects.
 ```javascript
 let results = <os>.bee.comb.search('/my/path');
 ```
-## Roadmap
-
-**0.9.6**
- - Uses [quest-star-rust](https://github.com/QuestNetwork/quest-star-rust) from NodeJS and Electron
 
 ## Installation & Usage
 ```
 npm install @questnetwork/quest-bee-js@0.9.4
 ```
+
+## Roadmap
+
+**0.9.6**
+ - Uses [quest-star-rust](https://github.com/QuestNetwork/quest-star-rust) from NodeJS and Electron
+
 
 ## Support Us
 This project is a lot of work and unfortunately we need to eat food (ツ)
