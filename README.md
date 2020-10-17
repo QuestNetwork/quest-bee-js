@@ -39,10 +39,11 @@ Sets HoneyComb Object Or Array Of Objects.
 Adds a HoneyComb object to an array of HoneyComb objects.
 
 ```javascript
-<os>.bee.comb.set('/my/path/to/the/object',content);
+<os>.bee.comb.add('/my/path/to/the/object',content);
 ```
 
 #### bee.comb.search(path)
+[![Bee](https://img.shields.io/badge/process-Bee-yellow)](https://github.com/QuestNetwork/quest-bee-js)
 
 Searches for HoneyComb objects and returns a flat array of HoneyComb objects.
 
