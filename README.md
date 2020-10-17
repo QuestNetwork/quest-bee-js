@@ -39,7 +39,7 @@ Sets HoneyComb Object Or Array Of Objects.
 Adds a HoneyComb object to an array of HoneyComb objects.
 
 ```javascript
-<os>.bee.comb.set('/my/path/to/the/object',content);
+<os>.bee.comb.add('/my/path/to/the/object',content);
 ```
 
 #### bee.comb.search(path)
@@ -51,15 +51,16 @@ Searches for HoneyComb objects and returns a flat array of HoneyComb objects.
 let results = <os>.bee.comb.search('/my/path');
 ```
 
+## Installation & Usage
+```
+npm install @questnetwork/quest-bee-js@0.9.4
+```
+
 ## Roadmap
 
 **0.9.6**
  - Uses [quest-star-rust](https://github.com/QuestNetwork/quest-star-rust) from NodeJS and Electron
 
-## Installation & Usage
-```
-npm install @questnetwork/quest-bee-js@0.9.4
-```
 
 ## Support Us
 This project is a lot of work and unfortunately we need to eat food (ツ)
