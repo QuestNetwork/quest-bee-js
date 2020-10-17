@@ -39,7 +39,7 @@ Sets HoneyComb Object Or Array Of Objects.
 Adds a HoneyComb object to an array of HoneyComb objects.
 
 ```javascript
-<os>.bee.comb.set('/my/path/to/the/object',content);
+<os>.bee.comb.add('/my/path/to/the/object',content);
 ```
 
 #### bee.comb.search(path)
