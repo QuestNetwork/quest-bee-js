@@ -49,7 +49,7 @@ Adds a HoneyComb object to an array of HoneyComb objects.
 
 ## Installation & Usage
 ```
-npm install @questnetwork/quest-bee-js@0.9.2
+npm install @questnetwork/quest-bee-js@0.9.4
 ```
 
 ## Support Us
