@@ -10,6 +10,38 @@
 
 The Bee process for the [Quest Network Operating System](https://github.com/QuestNetwork/quest-os-js) interacts with optional user facing technology, [Quest Coral JS](https://github.com/QuestNetwork/quest-coral-js) and [Quest Dolphin JS](https://github.com/QuestNetwork/quest-dolphin-js). It stores and synchronizes configuration data, discovers relevant dolphin peers, spawns, protects and repairs multiple pods of dolphin instances and provides core protocol nodes to multiple pods of dolphin instances when used in a single application.
 
+
+## API
+
+### comb
+
+#### bee.comb.get(path)
+[![Bee](https://img.shields.io/badge/process-Bee-yellow)](https://github.com/QuestNetwork/quest-bee-js)
+
+Gets HoneyComb Object Or Array Of Objects.
+
+```javascript
+let comb = <os>.bee.comb.get('/my/path/to/the/object');
+```
+
+#### bee.comb.set(path,content)
+[![Bee](https://img.shields.io/badge/process-Bee-yellow)](https://github.com/QuestNetwork/quest-bee-js)
+
+Sets HoneyComb Object Or Array Of Objects.
+
+```javascript
+<os>.bee.comb.set('/my/path/to/the/object',content);
+```
+
+#### bee.comb.add(path,content)
+[![Bee](https://img.shields.io/badge/process-Bee-yellow)](https://github.com/QuestNetwork/quest-bee-js)
+
+Adds a HoneyComb object to an array of HoneyComb objects.
+
+```javascript
+<os>.bee.comb.set('/my/path/to/the/object',content);
+```
+
 ## Roadmap
 
 **0.9.6**
@@ -17,7 +49,7 @@ The Bee process for the [Quest Network Operating System](https://github.com/Ques
 
 ## Installation & Usage
 ```
-npm install @questnetwork/quest-bee-js@0.9.2
+npm install @questnetwork/quest-bee-js@0.9.4
 ```
 
 ## Support Us
