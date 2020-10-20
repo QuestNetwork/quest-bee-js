@@ -500,6 +500,9 @@ getIpfsConfig(){
               throw('pwd');
             }
           }
+          else if(typeof config['default'] == 'undefined'){
+            throw('pwd');
+          }
 
 
 
@@ -513,7 +516,7 @@ getIpfsConfig(){
 
                       let  {newSecret, key, iv} = this.crypto.aes.hashSecret(this.accPwd, this.accName, 15000);
                       let encryptedHex = window.localStorage.getItem(key+iv);
-                      console.log(encryptedHex);
+                      // console.log(encryptedHex);
                       if(encryptedHex !== null){
                         try{
                           // console.log(this.accPwd);
@@ -526,7 +529,7 @@ getIpfsConfig(){
                           // console.log(localStorage);
                           if(typeof localStorage == 'object' && ( localStorage['version'] ==  "0.9.3" || localStorage['version'] == "0.9.4"  || localStorage['version'] == '0.9.5') ){
                             config = localStorage;
-                            console.log(config);
+                            // console.log(config);
                           }
                           else{
                             throw('pwd');
