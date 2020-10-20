@@ -401,7 +401,6 @@ getIpfsConfig(){
           }
 
           try{
-            window.localStorage.removeItem('user-qcprofile');
             let {newSecret, key, iv} = this.crypto.aes.hashSecret(this.accPwd, this.accName, 15000);
             window.localStorage.removeItem(key+iv);
           }catch(e){console.log(e);}
