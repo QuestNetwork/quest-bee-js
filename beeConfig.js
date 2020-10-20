@@ -133,17 +133,16 @@ export class BeeConfig {
 
 
   getUsername(){
-    if(typeof this.username == 'string' && name.length > 1 && name != 'qDesk User'){
-      return this.username;
-    }
-    else if(typeof this.getComb('/settings/account/username') == 'string' && this.getComb('/settings/account/username').length > 0 && this.getComb('/settings/account/username') != 'qDesk User'){
+
+    if(typeof this.getComb('/settings/account/username') == 'string' && this.getComb('/settings/account/username').length > 0 && this.getComb('/settings/account/username') != 'qDesk User'){
       this.username = this.getComb('/settings/account/usernme');
-      return this.getComb('/settings/account/username');
     }else{
       this.username = uniqueNamesGenerator(this.customUnameConfig);
       this.setComb('/settings/account/username', this.username);
-      return this.username;
     }
+
+    return this.username
+
   }
 
   setUsername(name, setCombFlag = false){
