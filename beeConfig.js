@@ -133,29 +133,27 @@ export class BeeConfig {
 
 
   getUsername(){
-
     if(typeof this.getComb('/settings/account/username') == 'string' && this.getComb('/settings/account/username').length > 0 && this.getComb('/settings/account/username') != 'qDesk User' && this.getComb('/settings/account/username') != '[object Object]'){
-      this.username = this.getComb('/settings/account/usernme');
-    }else if(typeof this.username != 'string' || this.username.length < 1 || this.username != 'qDesk User'){
+      this.username = this.getComb('/settings/account/username');
+      console.log('getting username from comb...')
+    }else if(typeof this.username != 'string' || this.username.length < 1){
       this.username = uniqueNamesGenerator(this.customUnameConfig);
       this.setComb('/settings/account/username', this.username);
     }
-
     return this.username
-
   }
 
   setUsername(name, setCombFlag = false){
-    if(typeof name == 'string' && name.length > 1 && name != 'qDesk User'){
+    console.log('setting username...',name)
+    console.log(typeof name);
+    console.log(setCombFlag);
+    if(typeof name == 'string' && name.length > 1 && name != 'qDesk User' && name != '[object Object]'){
       this.username = name;
       if(setCombFlag){
-        this.setComb('/settings/account/username', this.username);
+        console.log('setting username to comb...',name)
+        this.setComb('/settings/account/username', name);
       }
     }
-  }
-
-  enterUsername(name){
-    this.username = name;
   }
 
   setSelectedChannel(value){
