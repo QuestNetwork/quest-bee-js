@@ -53,7 +53,7 @@ export class BeeConfig {
     this.selectedChannelSub = new Subject();
     this.pFICache = uVar;
     this.hasConfigFlag = false;
-    this.username = "";
+    this.accName = "";
     this.customUnameNumberDictionary = NumberDictionary.generate({ min: 10, max: 99 });
     this.customUnameConfig = {
       dictionaries: [adjectives, colors, animals, this.customUnameNumberDictionary],
@@ -132,26 +132,26 @@ export class BeeConfig {
 
 
 
-  getUsername(){
-    if(typeof this.getComb('/settings/account/username') == 'string' && this.getComb('/settings/account/username').length > 0 && this.getComb('/settings/account/username') != 'qDesk User' && this.getComb('/settings/account/username') != '[object Object]'){
-      this.username = this.getComb('/settings/account/username');
+  getAccName(){
+    if(typeof this.getComb('/settings/account/name') == 'string' && this.getComb('/settings/account/name').length > 0 && this.getComb('/settings/account/name') != 'qDesk User' && this.getComb('/settings/account/name') != '[object Object]'){
+      this.accName = this.getComb('/settings/account/name');
       console.log('getting username from comb...')
-    }else if(typeof this.username != 'string' || this.username.length < 1){
-      this.username = uniqueNamesGenerator(this.customUnameConfig);
-      this.setComb('/settings/account/username', this.username);
+    }else if(typeof this.accName != 'string' || this.accName.length < 1){
+      this.accName = uniqueNamesGenerator(this.customUnameConfig);
+      this.setComb('/settings/account/name', this.accName);
     }
-    return this.username
+    return this.accName
   }
 
-  setUsername(name, setCombFlag = false){
+  setAccName(name, setCombFlag = false){
     console.log('setting username...',name)
     console.log(typeof name);
     console.log(setCombFlag);
     if(typeof name == 'string' && name.length > 1 && name != 'qDesk User' && name != '[object Object]'){
-      this.username = name;
+      this.accName = name;
       if(setCombFlag){
         console.log('setting username to comb...',name)
-        this.setComb('/settings/account/username', name);
+        this.setComb('/settings/account/name', name);
       }
     }
   }
