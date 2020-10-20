@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Subject } from 'rxjs';
 import { Utilities } from '@questnetwork/quest-utilities-js'
 import { NativeCrypto } from "@questnetwork/quest-crypto-js";
+import { uniqueNamesGenerator, Config, adjectives, colors, animals, NumberDictionary } from 'unique-names-generator';
 
 import { ElectronService } from 'ngx-electron';
 
@@ -52,7 +53,13 @@ export class BeeConfig {
     this.selectedChannelSub = new Subject();
     this.pFICache = uVar;
     this.hasConfigFlag = false;
-
+    this.username = "";
+    this.customUnameNumberDictionary = NumberDictionary.generate({ min: 10, max: 99 });
+    this.customUnameConfig = {
+      dictionaries: [adjectives, colors, animals, this.customUnameNumberDictionary],
+      separator: '-',
+      length: 4,
+   };
     this.saveLockStatusSub = new Subject();
     this.autoSaveRunning = false;
     this.jsonIpfsConfig = {};
@@ -121,6 +128,35 @@ export class BeeConfig {
     this.setComb('/settings/account/passwordSet', true);
     this.commitNow();
     return true;
+  }
+
+
+
+  getUsername(){
+    if(typeof this.username == 'string' && name.length > 1 && name != 'qDesk User'){
+      return this.username;
+    }
+    else if(typeof this.getComb('/settings/account/usernme') == 'string' && this.getComb('/settings/account/usernme').length > 0 && this.getComb('/settings/account/usernme') != 'qDesk User'){
+      this.username = this.getComb('/settings/account/usernme');
+      return this.getComb('/settings/account/username');
+    }else{
+      this.username = uniqueNamesGenerator(this.customUnameConfig);
+      this.setComb('/settings/account/username', this.username);
+      return this.username;
+    }
+  }
+
+  setUsername(name, setCombFlag = false){
+    if(typeof name == 'string' && name.length > 1 && name != 'qDesk User'){
+      this.username = name;
+      if(setCombFlag){
+        this.setComb('/settings/account/username', this.username);
+      }
+    }
+  }
+
+  enterUsername(name){
+    this.username = name;
   }
 
   setSelectedChannel(value){

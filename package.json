@@ -19,6 +19,7 @@
     "@questnetwork/quest-crypto-js": "../quest-crypto-js",
     "uuid": "8.3.0",
     "ngx-electron": "^2.2.0",
+    "unique-names-generator": "^4.3.1",
     "fs": "0.0.1-security"
   },
   "devDependencies": {
