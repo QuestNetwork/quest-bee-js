@@ -134,9 +134,9 @@ export class BeeConfig {
 
   getUsername(){
 
-    if(typeof this.getComb('/settings/account/username') == 'string' && this.getComb('/settings/account/username').length > 0 && this.getComb('/settings/account/username') != 'qDesk User'){
+    if(typeof this.getComb('/settings/account/username') == 'string' && this.getComb('/settings/account/username').length > 0 && this.getComb('/settings/account/username') != 'qDesk User' && this.getComb('/settings/account/username') != '[object Object]'){
       this.username = this.getComb('/settings/account/usernme');
-    }else{
+    }else if(typeof this.username != 'string' || this.username.length < 1 || this.username != 'qDesk User'){
       this.username = uniqueNamesGenerator(this.customUnameConfig);
       this.setComb('/settings/account/username', this.username);
     }
