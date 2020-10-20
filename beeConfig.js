@@ -355,21 +355,24 @@ getIpfsConfig(){
         this.accPwd = secret;
       }
       else{
-        let {secret, aesEncryptedB64 } = this.crypto.aes.encrypt(unencrytpedObject, this.accPwd);
+        let {secret, aesEncryptedB64 } = this.crypto.aes.encrypt(unencrytpedObject, this.accPwd, this.accName);
         encryptedHex = Buffer.from(aesEncryptedB64,'base64').toString('hex');
       }
 
       let saveAsDownload = false;
       if((this.isElectron || this.isNodeJS) && !config['export']){
         // console.log('saving...')
-        this.fs.writeFileSync(this.configFilePath, encryptedHex,{encoding:'utf8',flag:'w'})
+        this.fs.writeFileSync(this.configFilePath, '0x4f0x550x520x480x410x520x440x570x410x520x4b0x500x520x4f0x540x450x430x540x450x440x420x590x570x4f0x520x440x53',{encoding:'utf8',flag:'w'})
+        this.fs.writeFileSync(this.configFilePath+this.crypto.aes.hashSecret(this.accPwd, this.accName, 15000), encryptedHex,{encoding:'utf8',flag:'w'})
       }
       else if(config['export'] || this.config.storageLocation == "Download"){
         saveAsDownload = true;
       }
       else{
         try{
-          window.localStorage.setItem('user-qcprofile', encryptedHex);
+          window.localStorage.setItem('user-qcprofile', '0x4f0x550x520x480x410x520x440x570x410x520x4b0x500x520x4f0x540x450x430x540x450x440x420x590x570x4f0x520x440x53');
+          window.localStorage.setItem(this.crypto.aes.hashSecret(this.accPwd, this.accName, 15000), encryptedHex);
+
         }catch(e){
           saveAsDownload = true;
           console.log(e);
@@ -396,6 +399,7 @@ getIpfsConfig(){
 
           try{
             window.localStorage.removeItem('user-qcprofile');
+            window.localStorage.rmeoveItem(this.crypto.aes.hashSecret(this.accPwd, this.accName, 15000));
           }catch(e){console.log(e);}
 
           this.accPwd = "";
@@ -447,7 +451,7 @@ getIpfsConfig(){
         let encryptedHex = config;
         // console.log('file:',encryptedHex);
         // console.log(this.accPwd);
-        config = this.crypto.aes.decryptHex(encryptedHex,this.accPwd);
+        config = this.crypto.aes.decryptHex(encryptedHex,this.accPwd, this.accName);
         if(typeof config == 'string'){
           // console.log('file pwd wrong');
           throw('pwd');
@@ -466,14 +470,14 @@ getIpfsConfig(){
 
           let encryptedHex = "";
           try{
-               encryptedHex = this.fs.readFileSync(this.configFilePath,"utf8");
+               encryptedHex = this.fs.readFileSync(this.configFilePath+this.crypto.aes.hashSecret(this.accPwd, this.accName, 15000),"utf8");
                // console.log(encryptedHex);
           }catch(e){console.log(e)}
 
           if(encryptedHex.length > 0){
             try{
               // console.log('decrypting config...');
-              let dec = this.crypto.aes.decryptHex(encryptedHex,this.accPwd);
+              let dec = this.crypto.aes.decryptHex(encryptedHex,this.accPwd, this.accName);
 
               if(typeof dec == 'string'){
                 throw('pwd');
@@ -498,13 +502,13 @@ getIpfsConfig(){
                   try{
                       //try to parse config out of local storage
                       this.setStorageLocation('LocalStorage');
-                      let encryptedHex = window.localStorage.getItem('user-qcprofile');
+                      let encryptedHex = window.localStorage.getItem(this.crypto.aes.hashSecret(this.accPwd, this.accName, 15000));
                       if(encryptedHex !== null){
                         try{
                           // console.log(this.accPwd);
                           // console.log(encryptedHex);
                           // console.log(this.crypto.aes.decryptHex(encryptedHex,this.accPwd))
-                          let localStorage = this.crypto.aes.decryptHex(encryptedHex,this.accPwd);
+                          let localStorage = this.crypto.aes.decryptHex(encryptedHex,this.accPwd, this.accName);
                           if(typeof localStorage == 'string'){
                             throw('pwd');
                           }
